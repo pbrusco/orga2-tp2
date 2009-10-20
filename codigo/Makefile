@@ -1,20 +1,27 @@
-NASM=nasm
-NASMFLAGS= -f elf
-OBJECTS = bordes.o asmSobel.o asmRoberts.o asmPrewitt.o asmFreichen.o
+NASM		= nasm
+NASMFLAGS 	= -ggdb -f elf -o
+CC 			= gcc
+CFLAGS		= -ggdb -o
+OBJECTS		= bordes.o asmSobel.o asmRoberts.o asmPrewitt.o asmFreiChen.o
+
 .PHONY: all clean 
+
 
 all: bordes clean
 
-bordes: $(OBJECTS)
-	gcc  $(OBJECTS) -o bordes `pkg-config --cflags --libs opencv`
 
-bordes.o: bordes.c
-	gcc  -c bordes.c -o bordes.o `pkg-config --cflags opencv`
+bordes: $(OBJECTS)
+	gcc $(CFLAGS) $@ $^ `pkg-config --cflags --libs opencv`
+
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $@ $< `pkg-config --cflags opencv`
+
 
 %.o: %.asm
-	$(NASM) $(NASMFLAGS) -o $@ $<
+	$(NASM) $(NASMFLAGS) $@ $<
+
 
 clean:
 	rm -f $(OBJECTS)
-	
 
