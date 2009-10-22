@@ -42,7 +42,11 @@ cicloFila:
 		jg ultimo
 
 		jmp pepito			;me dejregistro lo que tengo que guardar, y en los siguientes 0
-	sigoCol:		
+	sigoCol:
+		jmp pepito2
+	sigoCol2:
+		paddusb xmm6,xmm7
+		movq [edi+eax+1],xmm6
 		lea esi,[esi+6]
 		lea edi,[edi+6]
 		add ebx,6
@@ -148,6 +152,6 @@ pepito2:
 		movdqu xmm7,xmm4
 		cmp ebx,edx
 		jg sigoFila2
-		jmp sigoCol
+		jmp sigoCol2
 
 

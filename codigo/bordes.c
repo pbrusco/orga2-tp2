@@ -113,8 +113,8 @@ int main( int argc, char** argv )
 	
 
 //esto lo uso para hacer pruebas y comparaciones!!!! se puede borrar
-	cvSobel(src,dst,1,0,3);
-	cvSaveImage("sobelXposta.bmp",dst);
+	cvSobel(src,dst,0,1,3);
+	cvSaveImage("sobelYposta.bmp",dst);
 
 	return 0;
 
