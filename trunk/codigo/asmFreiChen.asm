@@ -15,11 +15,11 @@ section .data
 	%define BLANCO_ABS					0xFF
 
 
-	x			y
+;	x			y
 
--1 0 1		-1	-*	-1
--* 0 *		0	0	0
--1 0 1		1 	*	1
+;-1 0 1		-1	-*	-1
+;-* 0 *		0	0	0
+;-1 0 1		1 	*	1
 
 
 section .text

@@ -1,4 +1,4 @@
-%include "macros_imagenes.asm"
+%include "macros.asm"
 
 ;void asmRoberts(const char* src, char* dst, int ancho, int alto, int wstep)
 
