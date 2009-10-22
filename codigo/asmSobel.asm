@@ -109,7 +109,7 @@ procesoLosUltimosDeLaFila:
 
 sobelX:
 		;esi apunta a la imagen fuente, al pixel donde debo empezar a cargar los datos a procesar
-		
+		;no pisar xmm3, xmm5, xmm7
 		movq xmm0,[esi]
 		movq xmm1,[esi+eax]
 		movq xmm2,[esi+eax*2]
@@ -142,28 +142,37 @@ sobelX:
 
 sobelY:
 		;esi apunta a la imagen fuente, al pixel donde debo empezar a cargar los datos a procesar
-		
+		;no pisar xmm3, xmm5, xmm6
 		movq xmm0,[esi]
-		movq xmm1,[esi+eax]
-		movq xmm2,[esi+eax*2]
+		movq xmm1,[esi+eax*2]
+		
 
 		punpcklbw xmm0,xmm3
 		punpcklbw xmm1,xmm3
-		punpcklbw xmm2,xmm3
-
-		paddusw xmm0,xmm1
-		paddusw xmm0,xmm1
+		
+		movdqu xmm2, xmm0
+		movdqu xmm4, xmm0
+		psrldq xmm2, 2
+		psrldq xmm4, 4
 		paddusw xmm0,xmm2
+		paddusw xmm0,xmm2
+		paddusw xmm0,xmm4
 
-		movdqu xmm1,xmm0
-	
-		psrldq xmm1,4
-	
-		psubusw xmm1,xmm0
+		movdqu xmm2, xmm1
+		movdqu xmm4, xmm1
+		psrldq xmm2, 2
+		psrldq xmm4, 4
+		paddusw xmm1,xmm2
+		paddusw xmm1,xmm2
+		paddusw xmm1,xmm4
+
+
+		psubusw xmm1, xmm0 
+
 
 		PACKUSWB xmm1,xmm1
 		PSLLQ xmm1,16		
 		PSRLQ xmm1,16
-		movdqu xmm6, xmm1
+		movdqu xmm7, xmm1
 		
 		jmp sigoColumnas
