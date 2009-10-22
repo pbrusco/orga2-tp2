@@ -1,6 +1,6 @@
 NASM		= nasm
 NASMFLAGS 	= -ggdb -f elf -o
-CC 			= gcc
+CC 		= gcc
 CFLAGS		= -ggdb -o
 OBJECTS		= bordes.o asmSobel.o asmRoberts.o asmPrewitt.o asmFreiChen.o
 
