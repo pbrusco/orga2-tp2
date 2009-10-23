@@ -33,7 +33,7 @@ cicloFila:
 	cicloColumna:				
 		
 		cmp ebx,edx			;ME FIJO SI EL CONTADOR DE PIXELES PROCESADOS SUPERA AL ANCHO-16
-		jg procesarUltimo		;EN CASO DE QUE SUCEDA PROCESO LA ULTIMA PARTE DE LA FILA
+		jg procesarUltimo	;EN CASO DE QUE SUCEDA PROCESO LA ULTIMA PARTE DE LA FILA
 		jmp proceso			;SINO PROCESO CON LOS PROXIMOS 16 PIXELES
 	
 	continuarConLaFila:
@@ -44,7 +44,7 @@ cicloFila:
 
 proceso:
 	movdqu xmm0,[esi]			;OBTENGO 16 VALORES (A)
-	movdqu xmm1,[esi+eax]			;OBTENGO LOS 16 DE ABAJO (B)
+	movdqu xmm1,[esi+eax]		;OBTENGO LOS 16 DE ABAJO (B)
 	movdqu xmm2,xmm0			;COPIO A (A')
 	movdqu xmm3,xmm1			;COPIO B (B')
 	psrldq xmm3,1				;SHIFTEO LA COPIA DE B A DERECHA 1 BYTE (>>B')
