@@ -112,10 +112,6 @@ int main( int argc, char** argv )
 	printf("Ciclos de reloj aproximados: %i \n",tscl);
 	
 
-//esto lo uso para hacer pruebas y comparaciones!!!! se puede borrar
-	cvSobel(src,dst,0,1,3);
-	cvSaveImage("sobelYposta.bmp",dst);
-
 	return 0;
 
 }
