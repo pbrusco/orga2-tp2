@@ -179,7 +179,7 @@ El criterio para obtener los resultados de esta secci\'on fue realizar unas 1000
 
 \begin{table}[ht] %ubicacion de la tabla
 \centering %centra la tabla
-\begin{tabular}{|r|l|l|l|l|l|}
+\begin{tabular}{|l|r|r|r|r|r|}
 \hline
 M\'etodo & Roberts & Prewitt & SobelX & SobelY & SobelXY \\
 \hline
@@ -189,14 +189,14 @@ TP1B & 697272 & 2294244 & 1467132 & 1452480 & 2368380 \\
 \hline
 \end{tabular}
 
-\caption{Tabla de mediciones de ciclos de reloj para cada uno de los algoritmos de detecci\'on de bordes implementados en el presente trabajo pr\'actico} %titulo de la tabla
+\caption{Tabla comparativa de mediciones de ciclos de reloj para cada uno de los algoritmos de detecci\'on de bordes implementados en ambos trabajos pr\'acticos} %titulo de la tabla
 \label{Tiempo metodos} %con esto puedo referenciar a la tabla \ref{Tiempo metodos}
 \end{table}
 \vspace{30pt}
 
 \begin{table}[ht] %ubicacion de la tabla
 \centering %centra la tabla
-\begin{tabular}{|r|l|l|l|}
+\begin{tabular}{|l|r|r|r|}
 \hline
 Metodo & SobelX & SobelY & SobelXY \\
 \hline
@@ -211,7 +211,7 @@ OpenCv & 21603888 & 19262892 & 20204124 \\
 
 \end{tabular}
 
-\caption{Tabla comparativa de mediciones de ciclos de reloj entre los algoritmos de deteccion de bordes basados en el operador de Sobel de la libreria OpenCV y el implementado en el presente trabajo pr\'actico} %titulo de la tabla
+\caption{Tabla comparativa de mediciones de ciclos de reloj entre los algoritmos de deteccion de bordes basados en el operador de Sobel de la libreria OpenCV y los implementados en ambos trabajos pr\'acticos} %titulo de la tabla
 \label{Tiempo comparacion} %con esto puedo referenciar a la tabla \ref{Tiempo metodos}
 \end{table}
 
@@ -219,37 +219,23 @@ OpenCv & 21603888 & 19262892 & 20204124 \\
 \newpage
 \section{Debate}
 \paragraph{}
-Como podemos observar en los datos obtenidos en la secci\'on de resultados, hay una clara diferencia entre los ciclos de reloj necesarios para procesar una imagen seg\'un el m\'etodo utilizado. Esa diferencia puede deberse a varios motivos. A continuaci\'on citamos los que creemos son los m\'as relevantes:
-
-\begin{itemize}
-\item Que la funci\'on cvSobel dispuesta por la librer\'ia est\'e implementada en un lenguaje de m\'as alto nivel, es decir, no en assembler.
-\item Que dicha implementaci\'on tambi\'en est\'e pensada para detectar bordes en imagenes con colores, teniendo quiz\'as por este motivo alg\'un algoritmo m\'as complejo el cu\'al requiera m\'as ciclos de reloj para procesar una im\'agen.
-\item Que en la funci\'on cvSobel de dos pasadas, posiblemente se realicen m\'as c\'alculos para lograr una intensidad m\'as uniforme y no tan marcada en los bordes. En este sentido, podr\'ia ser, que a diferencia del algoritmo implementado en este trabajo, la funcion cvSobel calcule el valor real del vector gradiente de cada pixel tal como se define en la expresi\'on (2) en lugar de realizar la apriximaci\'on definida en la expresi\'ion (3).
-
-\end{itemize}
+Como podemos observar en los datos obtenidos en la secci\'on de resultados, hay una clara diferencia en los ciclos de reloj necesarios para procesar una imagen entre el m\'etodo utilizado para el TP1 y el utilizado para el presente trabajo. Esto puede deberse a varios motivos, pero el principal y m\'as trivial de todos es que gracias a haber utilizado instrucciones SSE, se pudieron procesar de a m\'as de un pixel por vez haciendo aqu\'i la mayor diferencia. Adem\'as, la saturaci\'on del valor de los pixeles se realizaba automaticamente, tambi\'en gracias a las instrucciones antes mencionadas. Por lo tanto, el tiempo necesario para procesar una imagen se ve reducido ampliamente.
 
 \paragraph{}
-Estos resultados nos llevan a pensar que a pesar de contar con buenos algoritmos, una implementaci\'on puede mejorarse notablemente en lo que se refiere a tiempos de ejecuci\'on si se la realiza en un lenguaje de bajo nivel, como el lenguaje assembler; ya que, correctamente usado, este permite hacer un mejor uso de las instrucciones del procesador que el que puede brindar un compilador de uso general. Este tipo de estrategias puede ser de gran ayuda y sumamente \'util en caso de encontrarse un ``cuello de botella'' de tiempos de ejecuci\'on en un proyecto desarrollado en un leguaje de alto nivel.
+No obstante, la utilizaci\'on de instrucciones SSE para la mejora de ciertos puntos de un algoritmo puede ser una desventaja. Esto se debe a que no todos los procesadores tienen el mismo set de instrucciones, por lo cu\'al un algoritmo que funcione de manera excelente en una computadora, puede no comportarse como se espera en otra o directamente no funcionar.
 
-\paragraph{}
-En cuanto a la implementaci\'on realizada en este trabajo, podemos decir que implementar los mismos algoritmos con instrucciones que aprovechen m\'as a fondo las virtudes del procesador podr\'ia dar como resultado una mejora significativa en los tiempos de ejecuci\'on.
-
-
-\newpage
 
 \section{Conclusi\'ones}
 
 \paragraph{}
-Si observamos m\'as detalladamente los datos obtenidos, podremos ver grandes diferencias entre los tiempos de ejecuci\'on de la implementaci\'on anterior (TP1A) y la nueva (TP1B). Esto se debe a que, gracias al haber utilizado instrucciones SSE, en cada ciclo se pudieron procesar de a varios pixeles a la vez, en contraposici\'on con el trabajo pr\'actico anterior, en el cual s\'olo se pod\'ia procesar de a un pixel por vez.
+Si observamos m\'as detalladamente los datos obtenidos, podremos ver grandes diferencias entre los tiempos de ejecuci\'on de la implementaci\'on anterior (TP1) y la nueva (TP2). Esto se debe a que, gracias al haber utilizado instrucciones SSE, en cada ciclo se pudieron procesar de a varios pixeles a la vez, en contraposici\'on con el trabajo pr\'actico anterior, en el cual s\'olo se pod\'ia procesar de a un pixel por vez.
 
 \paragraph{}
-Otro punto interesante, es observar que, al aplicar las mascaracas, el valor correspondiente a un pixel puede ser negativo. Aqu\'i es donde al aplicar la saturaci\'on esos valores se convierten en 0, es decir negro. Otra manera de procesar estos valores negativos es, primero, convertirlos en positivos, y luego saturar. Esta aplicaci\'on de valor absoluto tiene mas sentido que no hacerla ya que un borde es un salto en el valor de la funci\'on de intensidad de la imagen, y este salto esta dado por la derivada, y una derivada negativa pero grande, tambi\'en indica un salto igual de importante al de una derivada grande positiva.
+Otro punto interesante es observar como se produce la saturaci\'on de un pixel. En el trabajo anterior, para poder saturar el valor obtenido para cada pixel, se deb\'ia hacer una funci\'on aparte. Esto conllevaba a un tiempo de ejecuci\'on mayor, ya que se deb\'ian hacer algunas comparaciones y asignaciones de acuerdo a si correspond\'ia saturar a 0 o a 255.\\
+En el caso de este trabajo, esto era autom\'atico, por lo cual se redujeron ampliamente los tiempos de ejecuci\'on en lo que respecta al tema de saturaci\'on. 
 
 \paragraph{}
-De est\'a manera, se desprende que es conveniente utilizar el valor absoluto para este c\'alculo. No obstante, esta mejora no fue implementada en el trabajo con la intensi\'on de poder comparar los resultados obtenidos con los de las funciones de la libreria OpenCv, las cuales, a simple vista, no hacen uso de esta funci\'on matem\'atica.
-
-\paragraph{}
-Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un procesador y sabiendo d\'onde se encuentran los ``cuellos de botella'' dentro de un algoritmo, uno puede mejorar ampliamente los tiempos de ejecuci\'on del mismo, ya que al programar en assembler se pueden elegir las instrucciones m\'as apropiadas para lo que se desea realizar. En cambio, si estos ``cuellos de botella'' no se programaran en assembler, el compilador no va a optimizar tanto nuestros algoritmos como deseamos.
+Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un procesador se puede mejorar a\'un m\'as el tiempo de ejecuci\'on de un algoritmo realizado en lenguaje assembler. Sin embargo, se debe conocer con detalle las m\'aquinas en donde se piensa utilizar este software ya que puede no funcionar como debe, dependiendo el hardware que se utilice.
 
 
 \newpage

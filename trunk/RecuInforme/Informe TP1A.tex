@@ -221,7 +221,7 @@ Como podemos observar en los datos obtenidos en la secci\'on de resultados, hay 
 \begin{itemize}
 \item Que la funci\'on cvSobel dispuesta por la librer\'ia est\'e implementada en un lenguaje de m\'as alto nivel, es decir, no en assembler.
 \item Que dicha implementaci\'on tambi\'en est\'e pensada para detectar bordes en imagenes con colores, teniendo quiz\'as por este motivo alg\'un algoritmo m\'as complejo el cu\'al requiera m\'as ciclos de reloj para procesar una im\'agen.
-\item Que en la funci\'on cvSobel de dos pasadas, posiblemente se realicen m\'as c\'alculos para lograr una intensidad m\'as uniforme y no tan marcada en los bordes. En este sentido, podr\'ia ser, que a diferencia del algoritmo implementado en este trabajo, la funcion cvSobel calcule el valor real del vector gradiente de cada pixel tal como se define en la expresi\'on (2) en lugar de realizar la apriximaci\'on definida en la expresi\'ion (3).
+\item Que en la funci\'on cvSobel de dos pasadas, posiblemente se realicen m\'as c\'alculos para lograr una intensidad m\'as uniforme y no tan marcada en los bordes. En este sentido, podr\'ia ser, que a diferencia del algoritmo implementado en este trabajo, la funcion cvSobel calcule el valor real del vector gradiente de cada pixel tal como se define en la expresi\'on (2) en lugar de realizar la aproximaci\'on definida en la expresi\'ion (3).
 
 \end{itemize}
 
@@ -229,7 +229,7 @@ Como podemos observar en los datos obtenidos en la secci\'on de resultados, hay 
 Estos resultados nos llevan a pensar que a pesar de contar con buenos algoritmos, una implementaci\'on puede mejorarse notablemente en lo que se refiere a tiempos de ejecuci\'on si se la realiza en un lenguaje de bajo nivel, como el lenguaje assembler; ya que, correctamente usado, este permite hacer un mejor uso de las instrucciones del procesador que el que puede brindar un compilador de uso general. Este tipo de estrategias puede ser de gran ayuda y sumamente \'util en caso de encontrarse un ``cuello de botella'' de tiempos de ejecuci\'on en un proyecto desarrollado en un leguaje de alto nivel.
 
 \paragraph{}
-En lo que respecta a la propia implementaci\'on, se puede recalcar que desde la primera implementaci\'on realizada hasta la versi\'on final, los tiempos de procesamiento decrecieron entre un 50\% y un 70\%. Esto se debe principalmente a la eliminaci\'on de c\'alculos innecesarios como la multiplicaci\'on entre registros y accesos a memoria evitables. En otras palabras, a un uso mas eficiente de las instrucciones aportadas por el lenguaje para realizar las mismas operaciones.
+En lo que respecta a la propia implementaci\'on, se puede recalcar que desde la primera implementaci\'on realizada hasta la versi\'on final, los tiempos de procesamiento decrecieron entre un 50\% y un 70\%. Esto se debe principalmente a la eliminaci\'on de c\'alculos innecesarios como la multiplicaci\'on entre registros y accesos a memoria evitables. En otras palabras, haciendo un uso m\'as eficiente de las instrucciones aportadas por el lenguaje para realizar las mismas operaciones.
 
 
 \newpage
@@ -238,7 +238,7 @@ En lo que respecta a la propia implementaci\'on, se puede recalcar que desde la 
 
 \paragraph{}
 
-Dados los resultados obtenidos de aplicar los distintos m\'etodos, no resulta dificil notar la diferencia entre, por ejemplo, el m\'etodo de Sobel implementado en la libreria OpenCv y la funci\'on en assembler elaborada en este trabajo pr\'actico. Es notable ver que, m\'as all\'a de no haber utilizado todo el poder del set de instrucciones, el rendimiento de esta \'ultima mejor\'o mucho con respecto a la de su par incorporada en la librer\'ia, muy probablemente implementada en un lenguaje de mas alto nivel.
+Dados los resultados obtenidos de aplicar los distintos m\'etodos, no resulta dif\'icil notar la diferencia entre, por ejemplo, el m\'etodo de Sobel implementado en la libreria OpenCv y la funci\'on en assembler elaborada en este trabajo pr\'actico. Es notable ver que, m\'as all\'a de no haber utilizado todo el poder del set de instrucciones, el rendimiento de esta \'ultima mejor\'o mucho con respecto a la de su par incorporada en la librer\'ia, muy probablemente implementada en un lenguaje de mas alto nivel.
 Quiz\'as esto tenga que ver con el lenguaje empleado o con los posibles agregados que tenga la funci\'on original, que, por ejemplo, procesa imagenes en color. Esto lleva a pensar que si se utilizaran las instrucciones correspondientes a MMX o SSE, se podria lograr un rendimiento a\'un mayor.\\
 Una de las posibles razones por la cu\'al la librer\'ia puede estar implementada en un lenguaje de alto nivel es para que la misma sea m\'as portable. En este sentido, si la librer\'ia estuviese implementada en assembler, y la misma utilizara instrucciones del tipo SSE, ser\'ia posible que algunos procesadores no sean capaces de ejecutarla.
 
