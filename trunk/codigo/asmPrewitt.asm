@@ -31,7 +31,7 @@ asmPrewitt:
 	sub edx,8					;RESTO A EDX (QUE CONTIENE EL ANCHO) 8, PARA EL RECORRIDO POR FILA
 	pxor xmm3,xmm3				;DEJO 0  XMM3 
 
-	sobelX:
+
 
 cicloFila:
 	xor ebx,ebx					;LIMPIO EL CONTADOR DE PIXELES PROCESADOS
