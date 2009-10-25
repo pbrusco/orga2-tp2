@@ -43,13 +43,13 @@ int main( int argc, char** argv )
 	dst = cvCreateImage (cvGetSize (src), IPL_DEPTH_8U, 1);
 
 
-	
-	// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
-	__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
-
 	if(!strcmp(operacion,"r1"))
 	{
+		// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
+		__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
+
 		asmRoberts(src->imageData, dst->imageData, src->width, src->height, src->widthStep);
+
 		// Tomo la medicion de tiempo con el TSC y calculo la diferencia. Resultado:
 		// Cantidad de clocks insumidos por el algoritmo.
 		 __asm__ __volatile__ ("rdtsc;sub %0,%%eax;mov %%eax,%0" : : "g" (tscl));
@@ -58,7 +58,11 @@ int main( int argc, char** argv )
 	}
 		else if(!strcmp(operacion,"r2"))
 	{
+		// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
+		__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
+
 		asmPrewitt(src->imageData, dst->imageData, src->width, src->height, src->widthStep);
+
 		// Tomo la medicion de tiempo con el TSC y calculo la diferencia. Resultado:
 		// Cantidad de clocks insumidos por el algoritmo.
 		 __asm__ __volatile__ ("rdtsc;sub %0,%%eax;mov %%eax,%0" : : "g" (tscl));
@@ -67,7 +71,11 @@ int main( int argc, char** argv )
 	}
 		else if(!strcmp(operacion,"r3"))
 	{
+		// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
+		__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
+
 		asmSobel(src->imageData, dst->imageData, src->width, src->height, src->widthStep, 1, 0);
+
 		// Tomo la medicion de tiempo con el TSC y calculo la diferencia. Resultado:
 		// Cantidad de clocks insumidos por el algoritmo.
 		 __asm__ __volatile__ ("rdtsc;sub %0,%%eax;mov %%eax,%0" : : "g" (tscl));
@@ -76,7 +84,11 @@ int main( int argc, char** argv )
 	}
 		else if(!strcmp(operacion,"r4"))
 	{
+		// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
+		__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
+
 		asmSobel(src->imageData, dst->imageData, src->width, src->height, src->widthStep, 0, 1);
+
 		// Tomo la medicion de tiempo con el TSC y calculo la diferencia. Resultado:
 		// Cantidad de clocks insumidos por el algoritmo.
 		 __asm__ __volatile__ ("rdtsc;sub %0,%%eax;mov %%eax,%0" : : "g" (tscl));
@@ -85,7 +97,11 @@ int main( int argc, char** argv )
 	}
 		else if(!strcmp(operacion,"r5"))
 	{
+		// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
+		__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
+
 		asmSobel(src->imageData, dst->imageData, src->width, src->height, src->widthStep, 1, 1);
+
 		// Tomo la medicion de tiempo con el TSC y calculo la diferencia. Resultado:
 		// Cantidad de clocks insumidos por el algoritmo.
 		 __asm__ __volatile__ ("rdtsc;sub %0,%%eax;mov %%eax,%0" : : "g" (tscl));
@@ -94,7 +110,11 @@ int main( int argc, char** argv )
 	}
 		else if(!strcmp(operacion,"r6"))
 	{
+		// Tomar estado del TSC antes de iniciar el procesamiento de bordes.
+		__asm__ __volatile__ ("rdtsc;mov %%eax,%0" : : "g" (tscl));
+
 		asmFreiChen(src->imageData, dst->imageData, src->width, src->height, src->widthStep);
+
 		// Tomo la medicion de tiempo con el TSC y calculo la diferencia. Resultado:
 		// Cantidad de clocks insumidos por el algoritmo.
 		 __asm__ __volatile__ ("rdtsc;sub %0,%%eax;mov %%eax,%0" : : "g" (tscl));
