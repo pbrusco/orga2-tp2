@@ -1,19 +1,20 @@
 %include "macros.asm"
-
-;void asmFreiChen(const char* src, char* dst, int ancho, int alto, int wstep)
-
-global asmFreiChen
-
-section .data
-	
-	%define DIR_SRC						[ebp+8]
+%define DIR_SRC						[ebp+8]
 	%define DIR_DST						[ebp+12]
 	%define WIDTH						[ebp+16]
 	%define HEIGHT						[ebp+20]
 	%define WIDTH_STEP					[ebp+24]
 	%define NEGRO_ABS					0x00	
 	%define BLANCO_ABS					0xFF
+	%define varf						[ebp-4]
 
+;void asmFreiChen(const char* src, char* dst, int ancho, int alto, int wstep)
+
+global asmFreiChen
+
+section .data
+dos: dd 2	
+	
 
 ;	x			y
 
@@ -26,7 +27,7 @@ section .text
 
 asmFreiChen:
 
-	convC_push								; preservo los registros de la Convención C y creo el stack frame
+	convC_push 4								; preservo los registros de la Convención C y creo el stack frame
 	
 	mov eax, HEIGHT							; EAX = HEIGHT
 	mov ecx, WIDTH_STEP						; ECX = WIDTH_STEP
@@ -38,7 +39,7 @@ asmFreiChen:
 	
 	mov eax, WIDTH							; EAX = WIDTH
 	
-	xor xmm0, xmm0
+	pxor xmm0, xmm0
 	
 	ciclo: 
 		
@@ -60,8 +61,11 @@ asmFreiChen:
 
 
 		; cargo en XMM4 4 veces la raíz cuadrada de 2
+		finit
+		fild dword [dos]
+		fst dword varf	
 
-		movss xmm4, 2						; xmm4 = 2
+		movss xmm4, varf						; xmm4 = 2
 		pshufd xmm4, xmm4, 00000000b		; xmm4 = 2|2|2|2
 		sqrtps	xmm4, xmm4					; xmm4 = 2*|2*|2*|2*
 
@@ -80,5 +84,5 @@ asmFreiChen:
 		; aplico la máscara de Frei-Chen en X para a los píxeles p2_2 y p2_1
 		
 		
-	convC_pop								; restauro los registros de la Convención C y destruyo el stack frame
+	convC_pop 4								; restauro los registros de la Convención C y destruyo el stack frame
 	ret										; regreso de la función llamada
