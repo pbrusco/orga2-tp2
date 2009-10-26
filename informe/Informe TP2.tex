@@ -4,6 +4,7 @@
 \usepackage[latin1]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{amsmath}
+\usepackage[lined]{algorithm2e}
 
 \begin{document}
 
@@ -354,68 +355,78 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
 
 \newpage
 \section{Anexo Pseudoc\'odigos}
-Pseudocodigo:
 
-asmRoberts(src:char*, dst:char*, ancho:int ,alto:int,wstep:int)
-{
-	pSrc(ESI) 		$\leftarrow$	src; 			
-	pDst(EDI) 		$\leftarrow$	dst;			
-	filasFaltantes(ECX) 	$\leftarrow$	alto;		
-	paso(EAX) 		$\leftarrow$	wstep;				
-	limiteAncho(EDX) 	$\leftarrow$	ancho;					
 
-	filasFaltantes(ECX)     $\leftarrow$ 	filasFaltantes(ECX) -1;
-	limiteAncho(EDX) 	$\leftarrow$	limiteAncho(EDX) - 16;					
-					
-
-	do{
-		pixelesProcesados(EBX) = 0;
+%inicio algoritmo
+    \incmargin{1em}
+    \restylealgo{boxed}
+    \linesnumbered
+    \dontprintsemicolon
+    
+	\begin{algorithm}[H]
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+    
+	\caption{Reducci'on por submuestreo}
+	\Input{Una matriz O de $n*m$ y una matriz R de $l*k$, donde l es m'ultiplo de n y k de m.}
+	\Output{R con el valor de la matriz de submuestreo  de O.}
+	\BlankLine
 	
-		do{	
-			if (ebx>edx) 
-
-				pSrc(ESI) $\leftarrow$ pSrc(ESI) + limiteAncho(EDX) ;
-				pSrc(ESI) $\leftarrow$ pSrc(ESI) - pixelesProcesados(EBX);
-				
-				pDst(EDI) $\leftarrow$ pDst(EDI) + limiteAncho(EDX) ;
-				pDst(EDI) $\leftarrow$ pDst(EDI) - pixelesProcesados(EBX);
-				
-				procesar();
-			else
+	stepX := n/l
+	
+	stepY := m/k 
+	
+	\For {i de 0 a l - 1}{
+	  \For {j de 0 a k - 1}{
+			R(i,j) = O(l*n, k*m)
+	  }
+	}
 			
-				procesar();
+	\end{algorithm}
+	\decmargin{1em}
+%fin algoritmo
+
+%inicio algoritmo
+    \incmargin{1em}
+    \restylealgo{boxed}
+    \linesnumbered
+    \dontprintsemicolon
+    
+	\begin{algorithm}[H]
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+    
+	\caption{Reducci'on por promedio}
+	\Input{Una matriz O de $n*m$ y una matriz R de $l*k$, donde l es m'ultiplo de n y k de m.}
+	\Output{R con el valor de la matriz de promedios de O.}
+	\BlankLine
 	
-		}while(ebx <= edx);
+	stepX := n/l
 	
-		pSrc(ESI) $\leftarrow$ pSrc(ESI) - limiteAncho(EDX);
-		pSrc(ESI) $\leftarrow$ pSrc(ESI) + paso(EAX) ;
+	stepY := m/k 
 	
-		pDst(EDI) $\leftarrow$ pDst(EDI) - limiteAncho(EDX);
-		pDst(EDI) $\leftarrow$ pDst(EDI) + paso(EAX) ;
-	
-		filasFaltantes(ECX) $\leftarrow$ 	filasFaltantes(ECX) - 1; 
-	
-	}while(filasFaltantes(ECX) > 0); 
-}	
+	\For {i de 0 a l - 1}{
+	  \For {j de 0 a k - 1}{
+	    
+	    R(i,j) := 0
+	    
+	    \For {a de n*stepX a (n+1)*stepX}{
+	      \For {b de m*stepX a (m+1)*stepX}{
+	        R(i,j) += O(a,b)
+	      }
+	    }
+	    
+	    R(i,j) /= (stepX * stepY)
+	  }
+	}
+			
+%	Construyo una solucion $S$ a partir de $B$ y sustituyendo de abajo hacia arriba la matriz triangulada $A$\;
+%	\Return{$S$}\;
+	\end{algorithm}
+	\decmargin{1em}
+%fin algoritmo
 
 
-
-
-procesar()
-{
-	xmm0 $\leftarrow$ [pSrc][127:0];
-	xmm1 $\leftarrow$ [pSrc+paso][127:0];
-	xmm2 $\leftarrow$ xmm0;
-	xmm3 $\leftarrow$ xmm1;
-	xmm3 $\leftarrow$ xmm3 >> 1;
-	xmm2 $\leftarrow$ xmm2-xmm3;
-	xmm0 $\leftarrow$ xmm0 >> 1;
-	xmm0 $\leftarrow$ xmm0-xmm1;
-	xmm0 $\leftarrow$ xmm0 + xmm2;
-	xmm0 $\leftarrow$ xmm0 << 1;
-	xmm0 $\leftarrow$ xmm0 >> 1;
-	[pDst(EDI)][127:0] $\leftarrow$ xmm0;
-}
 
 
 \end{document} 
