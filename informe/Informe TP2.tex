@@ -503,24 +503,23 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
    \begin{algorithm}[H]
      \SetLine
     	xmm0[63:0] $\leftarrow$ [pSrc]\;
-			xmm1[63:0] $\leftarrow$ [pSrc+paso]\;
-			xmm2[63:0] $\leftarrow$ [pSrc+paso*2]\;
-			
+			xmm1[63:0] $\leftarrow$ [pSrc+paso*2]\;
 			xmm0 $\leftarrow$ desmpaquetarDeBytesAWords(xmm0,xmm3)\;
 			xmm1 $\leftarrow$ desmpaquetarDeBytesAWords(xmm1,xmm3)\;
-			xmm2 $\leftarrow$ desmpaquetarDeBytesAWords(xmm2,xmm3)\;
-			
-			xmm0 $\leftarrow$ xmm0 + 2*xmm1 + xmm2\;
-			xmm1 $\leftarrow$ xmm0\;
-			xmm1 $\leftarrow$ xmm1 $>>$4
+			xmm2 $\leftarrow$ xmm0\;
+			xmm4 $\leftarrow$ xmm0\;
+			xmm2 $\leftarrow$ xmm2 $>>$2\;
+			xmm4 $\leftarrow$ xmm4 $>>$4\;
+			xmm0 $\leftarrow$ xmm0 + 2*xmm2 + xmm4\;
+			xmm2 $\leftarrow$ xmm1\;
+			xmm4 $\leftarrow$ xmm1\;
+			xmm2 $\leftarrow$ xmm2 $>>$2\;
+			xmm4 $\leftarrow$ xmm4 $>>$4\;
+			xmm1 $\leftarrow$ xmm1 + 2*xmm2 + xmm4\;
 			xmm1 $\leftarrow$ xmm1 $-$ xmm0\;
-			
 			xmm1 $\leftarrow$ empaquetarDeWordAByte(xmm1)\;
-			xmm1[63:48] $\leftarrow$ 0\;
-			
-			xmm6 $\leftarrow$ xmm1\;
-			
-			
+			xmm1[63:48] $\leftarrow$ 0\;		
+			xmm7 $\leftarrow$ xmm1\;
 			
      \caption{sobelY()}
    \end{algorithm}
