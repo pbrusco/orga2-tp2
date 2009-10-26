@@ -25,54 +25,46 @@ asmPrewitt:
 	mov esi, src				;MUEVO A ESI EL PUNTERO AL SRC
 	mov edi, dst				;MUEVO A EDI EL PUNTERO AL DESTINO
 	mov ecx, alto				;MUEVO A ECX EL ALTO
-	sub ecx, 2					;DECREMENTO ECX PARA QUE EL LOOP SE HAGA HASTA DOS LINEA MENOS QUE EL ALTO
+	sub ecx, 2				;DECREMENTO ECX PARA QUE EL LOOP SE HAGA HASTA DOS LINEA MENOS QUE EL ALTO
 	mov eax, paso				;MUEVO A EAX EL WSTEP O PASO
 	mov edx, ancho				;MUEVO A EDX EL ANCHO
-	sub edx,8					;RESTO A EDX (QUE CONTIENE EL ANCHO) 8, PARA EL RECORRIDO POR FILA
+	sub edx,8				;RESTO A EDX (QUE CONTIENE EL ANCHO) 8, PARA EL RECORRIDO POR FILA
 	pxor xmm3,xmm3				;DEJO 0  XMM3 
 
 
 
 cicloFila:
-	xor ebx,ebx					;LIMPIO EL CONTADOR DE PIXELES PROCESADOS
+	xor ebx,ebx				;LIMPIO EL CONTADOR DE PIXELES PROCESADOS
 		
 	cicloColumna:
 
 		cmp ebx,edx 			;ME FIJO SI EL CONTADOR DE PIXELES PROCESADOS SUPERA AL ANCHO-8
 		jg procesarUltimo		;EN CASO DE QUE SUCEDA PROCESO LA ULTIMA PARTE DE LA FILA
 
-		jmp procesarX			;SINO PROCESO CON LOS PROXIMOS 8 PIXELES en X y luego en Y
+		jmp procesarYguardar
 	sigoCol:
-		jmp procesarY
-	sigoCol2:
-		paddusb xmm6,xmm7		;SUMO Y SATURO LOS DOS RESULTADOS DE LOS PROCESOS
-		movq [edi+eax+1],xmm6	;GUARDO LOS RESULTADOS A PARTIR DE EDI + EL PASO + 1 COLUMNA
 		
-		add esi,6				;LUEGO DE PROCESAR (Y GUARDAR) POSICIONO LOS PUNTEROS DONDE CORRESPONDE
-		add edi,6				;CORRIENDOME 6 LUGARES MAS ADELANTE
-		add ebx,6				;SUMO AL CONTADOR DE PIXELES PROCESADOS LOS 6.
+		add esi,6			;LUEGO DE PROCESAR (Y GUARDAR) POSICIONO LOS PUNTEROS DONDE CORRESPONDE
+		add edi,6			;CORRIENDOME 6 LUGARES MAS ADELANTE
+		add ebx,6			;SUMO AL CONTADOR DE PIXELES PROCESADOS LOS 6.
 
 		jmp cicloColumna		;SIGO CON LA PROXIMA COLUMNA (O BLOQUE)
 
 
 procesarUltimo:
-		add esi,edx				;ACOMODO LOS INIDICES PARA PROCESAR LOS ULTIMOS 8 PIXELES
+		add esi,edx			;ACOMODO LOS INIDICES PARA PROCESAR LOS ULTIMOS 8 PIXELES
 		sub esi,ebx
 		add edi,edx
 		sub edi,ebx
 
-		jmp procesarX			;PROCESA LOS ULTIMOS PIXELES
+		JMP procesarYguardar
+
 	sigoFila:
-		jmp procesarY
-	sigoFila2:
-		paddusb xmm6,xmm7
-		movq [edi+eax+1],xmm6		
 
+		add esi, eax 		
 		sub esi, edx 			;COMO TERMINE LA FILA ACOMODO LOS INDICES PARA LA PROXIMA FILA
-		add esi, eax 
-
-		sub edi, edx 	
 		add edi, eax 
+		sub edi, edx 	
 	
 	loop cicloFila 				;VOY A LA SIGUIENTE FILA SI NO LLEGUE A COMPLETAR EL ALTO-1
 
@@ -87,10 +79,10 @@ fin:
 
 
 
-procesarX:
+procesarYguardar:
 		movq xmm0,[esi]						;MUEVO A XMM0 LOS PRIMEROS 8 PIXELES (A)
 		movq xmm1,[esi+eax]					;MUEVO B XMM1 LOS PRIMEROS 8 PIXELES DE LA FILA SIGUIENTE (B)
-		movq xmm2,[esi+eax*2]				;MUEVO C XMM2 LOS PRIMEROS 8 PIXELES DE LA 3ER FILA (C)
+		movq xmm2,[esi+eax*2]					;MUEVO C XMM2 LOS PRIMEROS 8 PIXELES DE LA 3ER FILA (C)
 
 		punpcklbw xmm0,xmm3					;DESEMPAQUETO LOS 3 VALORES
 		punpcklbw xmm1,xmm3
@@ -109,15 +101,12 @@ procesarX:
 		PACKUSWB xmm1,xmm1					;EMPAQUETO
 		PSLLQ xmm1,16						;LIMPIO BASURAS
 		PSRLQ xmm1,16
-		movdqu xmm6,xmm1					;GUARDO EN XMM6 EL RESULTADO DE LA OPERACION
-		cmp ebx,edx							;ME FIJO SI TERMINO O SIGO CON LA MISMA FILA
-		jg sigoFila
-		jmp sigoCol
+		movdqu xmm6,xmm1					;GUARDO EN XMM6 EL RESULTADO DE LA OPERACION (X)
 
 
-procesarY:
+
 		movq xmm0,[esi]						;MUEVO A XMM0 LOS PRIMEROS 8 PIXELES (A)
-		movq xmm4,[esi+eax*2]				;MUEVO A XMM4 LOS PRIMEROS 8 PIXELES DE DOS FILAS MAS ABAJO (B)
+		movq xmm4,[esi+eax*2]				 	;MUEVO A XMM4 LOS PRIMEROS 8 PIXELES DE DOS FILAS MAS ABAJO (B)
 
 		punpcklbw xmm0,xmm3					;DESEMPAQUETO A
 		punpcklbw xmm4,xmm3					;DESEMPAQUETO B
@@ -130,7 +119,7 @@ procesarY:
 		
 		paddusw xmm0,xmm1					;SUMO A MAS A' SHIFTEADA (A + >>A')
 		paddusw xmm0,xmm2					;SUMO A MAS A'' SHIFTEADA 2 VECES (A + >>>>A'')
-											;XMM0 = A + >>A' + >>>>A''
+									;XMM0 = A + >>A' + >>>>A''
 
 		movdqu xmm1,xmm4					;COPIO B EN XMM1 (B')
 		movdqu xmm2,xmm4					;COPIO B EN XMM2 (B'')
@@ -148,9 +137,13 @@ procesarY:
 		PACKUSWB xmm4,xmm4					;EMPAQUETO XMM4
 		PSLLQ xmm4,16						;SHIFTEO PARA ELIMINAR BASURAS
 		PSRLQ xmm4,16
-		movdqu xmm7,xmm4					;DEJO EL VALOR DE LA OPERACION EN XMM7 
-		cmp ebx,edx							;ME FIJO SI TERMINE O NO LA FILA.
-		jg sigoFila2
-		jmp sigoCol2
+		movdqu xmm7,xmm4	
+									;DEJO EL VALOR DE LA OPERACION (Y) EN XMM7 
+		paddusb xmm6,xmm7
+		movq [edi+eax+1],xmm6					;GUARDO EL RESULTADO (X+Y)
 
+		cmp ebx,edx						;ME FIJO SI TERMINE O NO LA FILA.
+		jg sigoFila
+		jmp sigoCol
 
+		
