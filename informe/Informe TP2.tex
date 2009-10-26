@@ -354,6 +354,68 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
 
 \newpage
 \section{Anexo Pseudoc\'odigos}
+Pseudocodigo:
+
+asmRoberts(src:char*, dst:char*, ancho:int ,alto:int,wstep:int)
+{
+	pSrc(ESI) 		$\leftarrow$	src; 			
+	pDst(EDI) 		$\leftarrow$	dst;			
+	filasFaltantes(ECX) 	$\leftarrow$	alto;		
+	paso(EAX) 		$\leftarrow$	wstep;				
+	limiteAncho(EDX) 	$\leftarrow$	ancho;					
+
+	filasFaltantes(ECX)     $\leftarrow$ 	filasFaltantes(ECX) -1;
+	limiteAncho(EDX) 	$\leftarrow$	limiteAncho(EDX) - 16;					
+					
+
+	do{
+		pixelesProcesados(EBX) = 0;
+	
+		do{	
+			if (ebx>edx) 
+
+				pSrc(ESI) $\leftarrow$ pSrc(ESI) + limiteAncho(EDX) ;
+				pSrc(ESI) $\leftarrow$ pSrc(ESI) - pixelesProcesados(EBX);
+				
+				pDst(EDI) $\leftarrow$ pDst(EDI) + limiteAncho(EDX) ;
+				pDst(EDI) $\leftarrow$ pDst(EDI) - pixelesProcesados(EBX);
+				
+				procesar();
+			else
+			
+				procesar();
+	
+		}while(ebx <= edx);
+	
+		pSrc(ESI) $\leftarrow$ pSrc(ESI) - limiteAncho(EDX);
+		pSrc(ESI) $\leftarrow$ pSrc(ESI) + paso(EAX) ;
+	
+		pDst(EDI) $\leftarrow$ pDst(EDI) - limiteAncho(EDX);
+		pDst(EDI) $\leftarrow$ pDst(EDI) + paso(EAX) ;
+	
+		filasFaltantes(ECX) $\leftarrow$ 	filasFaltantes(ECX) - 1; 
+	
+	}while(filasFaltantes(ECX) > 0); 
+}	
+
+
+
+
+procesar()
+{
+	xmm0 $\leftarrow$ [pSrc][127:0];
+	xmm1 $\leftarrow$ [pSrc+paso][127:0];
+	xmm2 $\leftarrow$ xmm0;
+	xmm3 $\leftarrow$ xmm1;
+	xmm3 $\leftarrow$ xmm3 >> 1;
+	xmm2 $\leftarrow$ xmm2-xmm3;
+	xmm0 $\leftarrow$ xmm0 >> 1;
+	xmm0 $\leftarrow$ xmm0-xmm1;
+	xmm0 $\leftarrow$ xmm0 + xmm2;
+	xmm0 $\leftarrow$ xmm0 << 1;
+	xmm0 $\leftarrow$ xmm0 >> 1;
+	[pDst(EDI)][127:0] $\leftarrow$ xmm0;
+}
 
 
 \end{document} 
