@@ -30,7 +30,7 @@ asmFreiChen:
 	mov eax, HEIGHT				; eax = HEIGHT
 	sub eax, 2				; eax = HEIGHT-2
 	mov ecx, WIDTH				; ecx = WIDTH
-	sub ecx, 2				; ecx = WIDTH-2
+
 	mul ecx
 	mov ecx, eax				; ecx = (HEIGHT-2) * (WIDTH-2)
 	shr ecx, 1				; ecx = (HEIGHT-2) * (WIDTH-2)/2 -- voy a procesar 2 píxeles por vez
@@ -157,8 +157,8 @@ asmFreiChen:
 		
 		movd [edi+eax+1], mm0		; guardo los 2 píxeles procesados en la matriz destino
 
-		lea esi, [esi+16]		; avanzo el puntero en la matriz fuente 2 píxeles a la derecha
-		lea edi, [edi+16]		; avanzo el puntero en la matriz destino 2 píxeles a la derecha		
+		lea esi, [esi+2]		; avanzo el puntero en la matriz fuente 2 píxeles a la derecha
+		lea edi, [edi+2]		; avanzo el puntero en la matriz destino 2 píxeles a la derecha		
 		
 		dec ecx				; decremento en 1 el contador de píxeles procesados
 		jnz .ciclo			; repito el ciclo hasta haber procesado todos los píxeles de la imagen
