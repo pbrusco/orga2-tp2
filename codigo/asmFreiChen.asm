@@ -148,7 +148,7 @@ asmFreiChen:
 		packsswb mm0, mm0		; mm0 = - | - | - | - | Frey-ChenX(p22) | Frey-ChenX(p21)(8bits int c/u)
 
 		packssdw mm1, mm1		; mm1 = - | - | Frey-ChenY(p22) | Frey-ChenY(p21)  (16 bits int c/u)
-		packssdw mm1, mm1		; mm1 = - | - | - | - | Frey-ChenY(p22) | Frey-ChenY(p21)(8bits int c/u)
+		packsswb mm1, mm1		; mm1 = - | - | - | - | Frey-ChenY(p22) | Frey-ChenY(p21)(8bits int c/u)
 
 		paddsb mm0, mm1			; mm0 = - | - | - | - | Frey-ChenXY(p22) | Frey-ChenXY(p21)
 		
