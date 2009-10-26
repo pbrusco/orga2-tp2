@@ -33,7 +33,7 @@ cicloFila:
 	cicloColumna:				
 		
 		cmp ebx,edx			;ME FIJO SI EL CONTADOR DE PIXELES PROCESADOS SUPERA AL ANCHO-16
-		jg procesarUltimo	;EN CASO DE QUE SUCEDA PROCESO LA ULTIMA PARTE DE LA FILA
+		jg procesarUltimo		;EN CASO DE QUE SUCEDA PROCESO LA ULTIMA PARTE DE LA FILA
 		jmp proceso			;SINO PROCESO CON LOS PROXIMOS 16 PIXELES
 	
 	continuarConLaFila:
@@ -83,6 +83,74 @@ fin:
 	ret									
 
 
+
+
+
+
+
+
+Pseudocodigo:
+
+asmRoberts(src:char*, dst:char*, ancho:int ,alto:int,wstep:int)
+{
+	pSrc(ESI) 		←	src; 			
+	pDst(EDI) 		←	dst;			
+	filasFaltantes(ECX) 	←	alto;		
+	paso(EAX) 		←	wstep;				
+	limiteAncho(EDX) 	←	ancho;					
+
+	filasFaltantes(ECX)     ← 	filasFaltantes(ECX) -1;
+	limiteAncho(EDX) 	←	limiteAncho(EDX) - 16;					
+					
+
+	do{
+		pixelesProcesados(EBX) = 0;
+	
+		do{	
+			if (ebx>edx) 
+
+				pSrc(ESI) ← pSrc(ESI) + limiteAncho(EDX) ;
+				pSrc(ESI) ← pSrc(ESI) - pixelesProcesados(EBX);
+				
+				pDst(EDI) ← pDst(EDI) + limiteAncho(EDX) ;
+				pDst(EDI) ← pDst(EDI) - pixelesProcesados(EBX);
+				
+				procesar();
+			else
+			
+				procesar();
+	
+		}while(ebx <= edx);
+	
+		pSrc(ESI) ← pSrc(ESI) - limiteAncho(EDX);
+		pSrc(ESI) ← pSrc(ESI) + paso(EAX) ;
+	
+		pDst(EDI) ← pDst(EDI) - limiteAncho(EDX);
+		pDst(EDI) ← pDst(EDI) + paso(EAX) ;
+	
+		filasFaltantes(ECX) ← 	filasFaltantes(ECX) - 1; 
+	
+	}while(filasFaltantes(ECX) > 0); 
+}	
+
+
+
+
+procesar()
+{
+	xmm0 ← [pSrc][127:0];
+	xmm1 ← [pSrc+paso][127:0];
+	xmm2 ← xmm0;
+	xmm3 ← xmm1;
+	xmm3 ← xmm3 >> 1;
+	xmm2 ← xmm2-xmm3;
+	xmm0 ← xmm0 >> 1;
+	xmm0 ← xmm0-xmm1;
+	xmm0 ← xmm0 + xmm2;
+	xmm0 ← xmm0 << 1;
+	xmm0 ← xmm0 >> 1;
+	[pDst(EDI)][127:0] ← xmm0;
+}
 
 
 
