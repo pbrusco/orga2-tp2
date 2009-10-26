@@ -331,56 +331,40 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
 	\begin{algorithm}[H]
 	\SetKwInOut{Input}{Input}
 	\SetKwInOut{Output}{Output}
-	
 	\caption{M\'etodo de Roberts}
 	\Input{Punteros src y dst a las imagenes fuente y destino respectivamente y su ancho, alto y ancho con basura (wstep) donde el ancho con basura es multiplo de 16}
 	\Output{dst apuntando a la imagen resultante de aplicar el m\'etodo de Roberts}
-	\BlankLine
-	
+\BlankLine
 	pSrc(ESI) 		$\leftarrow$	src\; 			
 	pDst(EDI) 		$\leftarrow$	dst\;			
 	filasFaltantes(ECX) 	$\leftarrow$	alto\;		
 	paso(EAX) 		$\leftarrow$	wstep\;				
 	limiteAncho(EDX) 	$\leftarrow$	ancho\;					
-
 	filasFaltantes(ECX)     $\leftarrow$ 	filasFaltantes(ECX) -1\;
 	limiteAncho(EDX) 	$\leftarrow$	limiteAncho(EDX) - 16\;					
-					
-
 \While{filasFaltantes(ECX) $>$ 0}{
 		pixelesProcesados(EBX) $\leftarrow$ 0\;
-	
-		\While{pixelesProcesados(EBX) $\leq$ limiteAncho(EDX)}{	
-			
-			\eIf{pixelesProcesados(EBX) $>$limiteAncho(EDX)}{pSrc(ESI) $\leftarrow$ pSrc(ESI) $+$ limiteAncho(EDX) \;
+			\While{pixelesProcesados(EBX) $\leq$ limiteAncho(EDX)}{	
+				\eIf{pixelesProcesados(EBX) $>$limiteAncho(EDX)}{pSrc(ESI) $\leftarrow$ pSrc(ESI) $+$ limiteAncho(EDX) \;
 				pSrc(ESI) $\leftarrow$ pSrc(ESI) $-$ pixelesProcesados(EBX)\;
 				pDst(EDI) $\leftarrow$ pDst(EDI) $+$ limiteAncho(EDX) \;
 				pDst(EDI) $\leftarrow$ pDst(EDI) $-$ pixelesProcesados(EBX)\;
-				ProcesarYGuardar()\;}{ProcesarYGuardar()\;}
+				ProcesarYGuardar()\;}{
+				ProcesarYGuardar()\;}
 	}
 		pSrc(ESI) $\leftarrow$ pSrc(ESI) - limiteAncho(EDX)\;
 		pSrc(ESI) $\leftarrow$ pSrc(ESI) + paso(EAX) \;
-	
 		pDst(EDI) $\leftarrow$ pDst(EDI) - limiteAncho(EDX)\;
 		pDst(EDI) $\leftarrow$ pDst(EDI) + paso(EAX) \;
-	
 		filasFaltantes(ECX) $\leftarrow$ 	filasFaltantes(ECX) - 1\; 
-	
-	
-}
-
-
-
+		}
 	\end{algorithm}
 	\decmargin{1em}
 
-
-
    \begin{algorithm}[H]
      \SetLine
-     
-     	xmm0 $\leftarrow$ [pSrc][127:0]\;
-			xmm1 $\leftarrow$ [pSrc+paso][127:0]\;
+    	xmm0 $\leftarrow$ [pSrc]\;
+			xmm1 $\leftarrow$ [pSrc+paso]\;
 			xmm2 $\leftarrow$ xmm0\;
 			xmm3 $\leftarrow$ xmm1\;
 			xmm3 $\leftarrow$ xmm3 $>>$ 1\;
@@ -390,9 +374,163 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
 			xmm0 $\leftarrow$ xmm0 + xmm2\;
 			xmm0 $\leftarrow$ xmm0 $<<$ 1\;
 			xmm0 $\leftarrow$ xmm0 $<<$ 1\;
-			[pDst(EDI)][127:0] $\leftarrow$ xmm0\;
+			[pDst(EDI)] $\leftarrow$ xmm0\;
+     
+
+			pSrc(ESI) $\leftarrow$ pSrc(ESI) $+$ 15 \;
+			pDst(EDI) $\leftarrow$ pDst(EDI) $+$ 15\;
+	    pixelesProcesados(EBX) $\leftarrow$ pixelesProcesados(EBX) + 15\;
+     
      \caption{ProcesarYGuardar()}
    \end{algorithm}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+%inicio algoritmo
+    \incmargin{1em}
+    \restylealgo{boxed}
+    \linesnumbered
+    \dontprintsemicolon
+    
+	\begin{algorithm}[H]
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	
+	\caption{M\'etodo de Sobel}
+	\Input{Punteros src y dst a las imagenes fuente y destino respectivamente y su ancho, alto y ancho con basura (wstep) donde el ancho con basura es multiplo de 16. Tambi\'en xorder e yorder}
+	\Output{dst apuntando a la imagen resultante de aplicar el m\'etodo de Roberts}
+	\BlankLine
+	
+	pSrc(ESI) 		$\leftarrow$	src\; 			
+	pDst(EDI) 		$\leftarrow$	dst\;			
+	filasFaltantes(ECX) 	$\leftarrow$	alto\;		
+	paso(EAX) 		$\leftarrow$	wstep\;				
+	limiteAncho(EDX) 	$\leftarrow$	ancho\;					
+	filasFaltantes(ECX)     $\leftarrow$ 	filasFaltantes(ECX) -2\;
+	limiteAncho(EDX) 	$\leftarrow$	limiteAncho(EDX) - 8\;
+	xmm3 $\leftarrow$ 0\;
+	xmm6 $\leftarrow$ 0\;					
+	xmm7 $\leftarrow$ 0\;
+
+
+\While{filasFaltantes(ECX) $\neq$ 0}{
+		pixelesProcesados(EBX) $\leftarrow$ 0\;
+
+			\While{pixelesProcesados(EBX) - 6$\leq$ limiteAncho(EDX)}{	
+			\If{pixelesProcesados(EBX) $>$ limiteAncho(EDX)}{	
+			pSrc(ESI) $\leftarrow$ pSrc(ESI) $-$ pixelesProcesados(EBX) + limiteAncho(EDX) \;
+			pDst(EDI) $\leftarrow$ pDst(EDI) $-$ pixelesProcesados(EBX) + limiteAncho(EDX) \;
+			}
+			\If{xOrder == 1}{xmm6 $\leftarrow$ sobelX()}
+			\If{yOrder == 1}{xmm7 $\leftarrow$ sobelY()}
+			xmm5 $\leftarrow$ xmm6 + xmm7\;
+			[pDst(EDI) + paso(EAX) + 1] $\leftarrow$ xmm5\;
+		 	\If{pixelesProcesados(EBX) $\leq$ limiteAncho(EDX)}{
+		 	pSrc(ESI) $\leftarrow$ pSrc(ESI) $+$ 6 \;
+			pDst(EDI) $\leftarrow$ pDst(EDI) $+$ 6\;
+	   }
+	    pixelesProcesados(EBX) $\leftarrow$ pixelesProcesados(EBX) + 6\;
+  }   
+
+			pSrc(ESI) $\leftarrow$ pSrc(ESI) $-$ limiteAncho(EDX) $+$ paso(EAX)\;
+		pDst(EDI) $\leftarrow$ pDst(EDI) $-$ limiteAncho(EDX) $+$ paso(EAX)\;
+		filasFaltantes(ECX)$\leftarrow$filasFaltantes(ECX)-1\;
+	
+	}
+     \caption{Sobel}
+   \end{algorithm}
+
+
+
+
+
+   \begin{algorithm}[H]
+     \SetLine
+    	xmm0[63:0] $\leftarrow$ [pSrc]\;
+			xmm1[63:0] $\leftarrow$ [pSrc+paso]\;
+			xmm2[63:0] $\leftarrow$ [pSrc+paso*2]\;
+			
+			xmm0 $\leftarrow$ desmpaquetarDeBytesAWords(xmm0,xmm3)\;
+			xmm1 $\leftarrow$ desmpaquetarDeBytesAWords(xmm1,xmm3)\;
+			xmm2 $\leftarrow$ desmpaquetarDeBytesAWords(xmm2,xmm3)\;
+			
+			xmm0 $\leftarrow$ xmm0 + 2*xmm1 + xmm2\;
+			xmm1 $\leftarrow$ xmm0\;
+			xmm1 $\leftarrow$ xmm1 $>>$4
+			xmm1 $\leftarrow$ xmm1 $-$ xmm0\;
+			
+			xmm1 $\leftarrow$ empaquetarDeWordAByte(xmm1)\;
+			xmm1[63:48] $\leftarrow$ 0\;
+			
+			xmm6 $\leftarrow$ xmm1\;
+			
+			
+			
+     \caption{sobelX()}
+   \end{algorithm}
+
+
+
+   \begin{algorithm}[H]
+     \SetLine
+    	xmm0[63:0] $\leftarrow$ [pSrc]\;
+			xmm1[63:0] $\leftarrow$ [pSrc+paso]\;
+			xmm2[63:0] $\leftarrow$ [pSrc+paso*2]\;
+			
+			xmm0 $\leftarrow$ desmpaquetarDeBytesAWords(xmm0,xmm3)\;
+			xmm1 $\leftarrow$ desmpaquetarDeBytesAWords(xmm1,xmm3)\;
+			xmm2 $\leftarrow$ desmpaquetarDeBytesAWords(xmm2,xmm3)\;
+			
+			xmm0 $\leftarrow$ xmm0 + 2*xmm1 + xmm2\;
+			xmm1 $\leftarrow$ xmm0\;
+			xmm1 $\leftarrow$ xmm1 $>>$4
+			xmm1 $\leftarrow$ xmm1 $-$ xmm0\;
+			
+			xmm1 $\leftarrow$ empaquetarDeWordAByte(xmm1)\;
+			xmm1[63:48] $\leftarrow$ 0\;
+			
+			xmm6 $\leftarrow$ xmm1\;
+			
+			
+			
+     \caption{sobelY()}
+   \end{algorithm}
+
+
+
+
+
 \end{document} 
+
+
+
+		
