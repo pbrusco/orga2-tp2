@@ -9,10 +9,10 @@
 \begin{document}
 
 
-\begin{figure}[t] %[h] para here [b] para bottom [t] para top
-\centering
-\includegraphics[width=80pt]{./logo.jpg}
-\end{figure}
+%\begin{figure}[t] %[h] para here [b] para bottom [t] para top
+%\centering
+%\includegraphics[width=80pt]{./logo.jpg}
+%\end{figure}
 
 
 \begin{center}
@@ -342,9 +342,9 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
 	limiteAncho(EDX) 	$\leftarrow$	ancho\;					
 	filasFaltantes(ECX)     $\leftarrow$ 	filasFaltantes(ECX) -1\;
 	limiteAncho(EDX) 	$\leftarrow$	limiteAncho(EDX) - 16\;					
-\While{filasFaltantes(ECX) $>$ 0}{
+\While{filasFaltantes(ECX) - 1 $>$ 0}{
 		pixelesProcesados(EBX) $\leftarrow$ 0\;
-			\While{pixelesProcesados(EBX) $\leq$ limiteAncho(EDX)}{	
+			\While{pixelesProcesados(EBX) - 15 $\leq$ limiteAncho(EDX)}{	
 				\eIf{pixelesProcesados(EBX) $>$limiteAncho(EDX)}{pSrc(ESI) $\leftarrow$ pSrc(ESI) $+$ limiteAncho(EDX) \;
 				pSrc(ESI) $\leftarrow$ pSrc(ESI) $-$ pixelesProcesados(EBX)\;
 				pDst(EDI) $\leftarrow$ pDst(EDI) $+$ limiteAncho(EDX) \;
