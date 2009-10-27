@@ -163,7 +163,7 @@ asmFreiChen:
 		;finalmente realizo la suma empaquetada y con saturación de ambos para obtener los valores de los
 		; píxeles en la derivada XY
 		
-		paddsb mm0, mm1			; mm0 = - | - | - | - | Frey-ChenXY(p22) | Frey-ChenXY(p21)
+		paddusb mm0, mm1			; mm0 = - | - | - | - | Frey-ChenXY(p22) | Frey-ChenXY(p21)
 		
 
 		; guardo los píxeles procesados en la matriz destino y avanzo los punteros para continuar el procesando
