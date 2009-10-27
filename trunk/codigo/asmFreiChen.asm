@@ -30,10 +30,9 @@ asmFreiChen:
 	mov eax, HEIGHT				; eax = HEIGHT
 	sub eax, 2				; eax = HEIGHT-2
 	mov ecx, WIDTH				; ecx = WIDTH
-
 	mul ecx
-	mov ecx, eax				; ecx = (HEIGHT-2) * (WIDTH-2)
-	shr ecx, 1				; ecx = (HEIGHT-2) * (WIDTH-2)/2 -- voy a procesar 2 píxeles por vez
+	mov ecx, eax				; ecx = (HEIGHT-2) * WIDTH
+	shr ecx, 1				; ecx = (HEIGHT-2) * WIDTH/2 -- voy a procesar 2 píxeles por vez
 	mov eax, WIDTH				; eax = WIDTH
 	
 	
@@ -67,7 +66,6 @@ asmFreiChen:
 		; cargo en los registros XMM1, XMM2 y XMM3 4 píxeles de 3 filas contínuas de la matriz fuente	
 		
 		pxor xmm0, xmm0			; xmm0 = 0 
-		pxor xmm6, xmm6			; xmm6 = 0
 		
 		movd xmm1, [esi]		; xmm1 = p13|p12|p11|p10  (p* = 8 bits int)
 		movd xmm2, [esi+eax]		; xmm2 = p23|p22|p21|p20  (p* = 8 bits int)
@@ -103,20 +101,14 @@ asmFreiChen:
 
 		; aplico la máscara de Frei-Chen en X para a los píxeles p22 y p21
 
-		subps xmm6, xmm3		; xmm6 = -p33|-p32|-p31|-p30
-		subps xmm6, xmm1		; xmm6 = -p33-p13|-p32-p12|-p31-p11|-p30-p10
+		mulps xmm2, xmm4		; xmm2 =  p23*2^½ | p22*2^½ | p21*2^½ | p20*2^½
+		movdqu xmm6, xmm3		; xmm6 = p33|p32|p31|p30 
 
-		movdqu xmm7, xmm3		; xmm3 =  p33|p32|p31|p30
-		addps xmm7, xmm1		; xmm7 =  p33+p13| p32+p12| p31+p11| p30+p10
+		addps xmm6, xmm1		; xmm6 = p33+p13 | p32+p12 | p31+p11 | p30+p10
+		addps xmm6, xmm2		; xmm6 = p33+p13+p23*2^½|p32+p12+p22*2^½|p31+p11+p21*2^½|p30+p10+p20*2^½
+		pshufd xmm0, xmm6, 11111110b	; xmm0 = p33+p13+p23*2^½|p33+p13+p23*2^½|p33+p13+p23*2^½|p32+p12+p22*2^½
 
-		pshufd xmm7, xmm7, 11111110b	; xmm7 =  p33+p13| p33+p13| p33+p13| p32+p12
-
-		mulps xmm2, xmm4		; xmm4 =  p23*2^½ | p22*2^½ | p21*2^½ | p20*2^½
-		pshufd xmm0, xmm4, 11111110b	; xmm0 =  p23*2^½ | p23*2^½ | p23*2^½ | p22*2^½ 
-		
-		subps xmm0, xmm4		; xmm0 =  - | - | p23*2^½ - p21*2^½ | p22*2^½ - p20*2^½
-		addps xmm0, xmm6		; xmm0 =  - | - | (p23-p21)*2^½ -p31 -p11 | (p22-p20)*2^½ -p30 -p10
-		addps xmm0, xmm7		; xmm0 =  - | - | Frey-ChenX(p22) | Frey-ChenX(p21)
+		subps xmm0, xmm6		; xmm0 =  - | - | Frey-ChenX(p22) | Frey-ChenX(p21)
 
 		pxor mm0, mm0			; mm0 = 0
 		cvtps2pi mm0, xmm0		; mm0 = Frey-ChenX(p22) | Frey-ChenX(p21)  (32 bits int c/u)
@@ -141,6 +133,17 @@ asmFreiChen:
 		cvtps2pi mm1, xmm1		; mm1 = Frey-ChenY(p22) | Frey-ChenY(p21)  (32 bits int c/u)
 		
 
+		; saturo los posibles valores negativos de los píxeles a 0
+		
+		pxor mm2, mm2			; mm2 = 0
+		pcmpgtd mm2, mm0
+		pand mm0, mm2
+		
+		pxor mm2, mm2			; mm2 = 0
+		pcmpgtd mm2, mm1
+		pand mm1, mm2
+		
+
 		; empaqueto los pixeles procesado en X e Y en los registros XMM0 y XMM1 a words  primero, luego a bytes 
 		; y finalmente realizo la suma empaquetada y con saturación de ambos
 	
@@ -163,6 +166,7 @@ asmFreiChen:
 		dec ecx				; decremento en 1 el contador de píxeles procesados
 		jnz .ciclo			; repito el ciclo hasta haber procesado todos los píxeles de la imagen
  
+
 	; restauro los registros de la Convención C y destruyo el stack frame
 	
 	convC_pop 4			
