@@ -50,7 +50,7 @@ Grupo : PUNPCKHQDQ
 \vskip 15pt
 
 {\small\textbf{\flushleft{Resumen}}\\
-En el trab\'ajo pr\'actico anterior se vio la importancia de la detecci\'on de bordes como herramienta utilizada en el procesamiento de imágenes, y se desarrollaron algoritmos capaces de aplicar los filtros m\'as comunes en esta \'area (Sobel, Roberts y Prewitt)
+En el trabajo pr\'actico anterior se vio la importancia de la detecci\'on de bordes como herramienta utilizada en el procesamiento de im\'agenes, y se desarrollaron algoritmos capaces de aplicar los filtros m\'as comunes en esta \'area (Sobel, Roberts y Prewitt)
 La idea del presente trabajo es lograr implementar los algoritmos de detecci\'on de bordes de im\'agenes implementados en el citado trabajo e incorporar uno nuevo que haga uso del operador de Frei Chen, vali\'endonos en esta oportunidad  para ello de los sets de instrucciones multimedia (SIMD y SSE) del procesador. 
 Como paso ulterior se buscar\'a comparar los resultados obtenidos con los tiempos medidos para los algortimos previos as\'i como tambi\'en con las funciones an\'alogas implementadas en la librer\'ia estandar de c\'odigo abierto OpenCV. Los aspectos a comparar ser\'an tanto la calidad de resultados como el tiempo de
 procesamiento medido en ciclos de reloj.}\\
@@ -148,7 +148,7 @@ A continuaci\'on se explica c\'omo se implement\'o el operador de sobel en X. Re
 \hline -1 & 0 & 1 \\ 
 \hline 
 \end{tabular}
-\end{table}\\
+\end{table}
 
 \paragraph{}
 Una vez posicionados sobre el pixel al cual se le quer\'ia calcular la derivada, se carga en tres registros XMM tres tiras de filas adyacentes de la siguiente manera:\\
@@ -203,10 +203,9 @@ XMM1 = $\begin{array}{|c|c|c|c|c|}
 
 \paragraph{}
 Finalmente, se hace la resta entre XMM1 y XMM0, quedando en los 14 bytes menos significativos de XMM1 el resultado a guardar en la imagen destino.\\
-En principio esto se supuso que pasaba, pero en realidad no se obtuvieron los resultados buscados. Esto se debi\'o a que cuando se hac\'ia la suma de los registros XMM0, XMM2 y 2 veces XMM1, las instrucciones usadas saturaban cada una de las sumas, pero lo que se necesitaba era que reci\'en se saturaran los valores de cada pixel una vez hecha la resta antes mencionada.
 
-\paragraph{}
-Por este motivo, lo que se realiz\'o fue hacer un desempaquetado de los datos almacenados en los registros, para que las sucesivas sumas y restas no saturaran el resultado hasta que se lo necesitaba.\\
+En principio esto se supuso que este procedimiento era correcto, pero los resultados no fueron los esperados. Esto se debi\'o a que cuando se hace la suma de los registros XMM0, XMM2 y 2 veces XMM1, las instrucciones usadas saturaban cada una de las sumas, cuando en realidad la saturaci\'on de los píxeles debiera realizarse una vez aplicada la m\'ascara por completo a cada p\'ixel; es decir lo que se necesitaba era que reci\'en se saturaran los valores de cada pixel al hacer la resta antes mencionada.\\
+Para corregir este problema, lo que se realiz\'o fue hacer un desempaquetado de los datos almacenados en los registros, para que las sucesivas sumas y restas no saturaran el resultado hasta que fuerse preciso.\\
 De esta forma, se comenzaba igual que antes. Se cargaba en los registros XMM0, XMM1 y XMM2 3 tiras de pixeles de filas adyacentes, y los datos se desempaquetaban de bytes a words (s\'olo la parte baja de los mismos), quedando estos registros asi:
 
 \begin{center}
