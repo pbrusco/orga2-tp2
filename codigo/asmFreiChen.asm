@@ -123,9 +123,9 @@ asmFreiChen:
 
 		subps xmm6, xmm5		; xmm6 =  - | - | (p33-p13)*2^½ | (p32-p12)*2^½ 
 
-		subps xmm1, xmm3		; xmm1 =  p33-p13| p32-p12| p31-p11| p30-p10
-		pshufd xmm3, xmm1, 11111110b	; xmm3 =  p33-p13| p33-p13| p33-p13| p32-p12
-		addps xmm1, xmm3		; xmm1 =  - | - | p31-p11+p33-p13| p30-p10+p32-p12
+		subps xmm3, xmm1		; xmm3 =  p33-p13| p32-p12| p31-p11| p30-p10
+		pshufd xmm1, xmm3, 11111110b	; xmm1 =  p33-p13| p33-p13| p33-p13| p32-p12
+		addps xmm1, xmm3		; xmm1 =  - | - | p33-p13+p31-p11| p32-p12+p30-p10
 
 		addps xmm1, xmm6		; xmm1 =  - | - | Frey-ChenY(p22) | Frey-ChenY(p21)		
 
