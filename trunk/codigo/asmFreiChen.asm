@@ -42,13 +42,16 @@ asmFreiChen:
 	mov edi, DIR_DST			; edi = puntero a la matriz destino
 	
 		
-	; calculo la raiz cuadrada de 2 con la FPU y la guardo en var_local_1
+	; calculo la raiz cuadrada de 2 con la FPU, la guardo en var_local_1 y luego la cargo en XMM4
 
 	finit					; inicializo la FPU
 	fld1					; st0 = 1
 	fadd st0				; st0 = 2
 	fsqrt					; st0 = 2^½	
 	fstp dword var_local_1			; var_local_1 = 2^½
+
+	movss xmm4, var_local_1		; xmm4 =     |     |     | 2^½		
+	pshufd xmm4, xmm4, 00000000b	; xmm4 = 2^½ | 2^½ | 2^½ | 2^½
 
 	
 	; a continuación, en el ciclo que sigue recorro la matriz aplicando la máscara de a 2 píxeles por vez
@@ -63,13 +66,16 @@ asmFreiChen:
 
 	.ciclo: 
 
-		; cargo en los registros XMM1, XMM2 y XMM3 4 píxeles de 3 filas contínuas de la matriz fuente	
+		; cargo en los registros XMM1, XMM2 y XMM3 4 píxeles de 3 filas contínuas de la matriz fuente
+		; y cargo los registros XMM5 y XMM6 con el contenido de XMM4
 		
 		pxor xmm0, xmm0			; xmm0 = 0 
-		
 		movd xmm1, [esi]		; xmm1 = p13|p12|p11|p10  (p* = 8 bits int)
 		movd xmm2, [esi+eax]		; xmm2 = p23|p22|p21|p20  (p* = 8 bits int)
 		movd xmm3, [esi+eax*2]		; xmm3 = p33|p32|p31|p30  (p* = 8 bits int)
+
+		movdqu xmm5, xmm4		; xmm5 = 2^½ | 2^½ | 2^½ | 2^½
+		movdqu xmm6, xmm4		; xmm6 = 2^½ | 2^½ | 2^½ | 2^½
 
 
 		; desempaqueto los 4 píxeles de cada una de las 3 filas de bytes a word, y luego de word a doubleword
@@ -91,24 +97,16 @@ asmFreiChen:
 		cvtdq2ps xmm3, xmm3		; xmm3 = p33|p32|p31|p30  (p* = 32 bits float)
 
 
-		; cargo en XMM4 4 veces la raíz cuadrada de 2 y luego lo copio en XMM5
-
-		movss xmm4, var_local_1		; xmm4 =     |     |     | 2^½		
-		pshufd xmm4, xmm4, 00000000b	; xmm4 = 2^½ | 2^½ | 2^½ | 2^½
-
-		movdqu xmm5, xmm4		; xmm5 = xmm4
-
-
 		; aplico la máscara de Frei-Chen en X para a los píxeles p22 y p21
 
 		mulps xmm2, xmm4		; xmm2 =  p23*2^½ | p22*2^½ | p21*2^½ | p20*2^½
-		movdqu xmm6, xmm3		; xmm6 = p33|p32|p31|p30 
+		movdqu xmm7, xmm3		; xmm6 = p33|p32|p31|p30 
 
-		addps xmm6, xmm1		; xmm6 = p33+p13 | p32+p12 | p31+p11 | p30+p10
-		addps xmm6, xmm2		; xmm6 = p33+p13+p23*2^½|p32+p12+p22*2^½|p31+p11+p21*2^½|p30+p10+p20*2^½
-		pshufd xmm0, xmm6, 11111110b	; xmm0 = p33+p13+p23*2^½|p33+p13+p23*2^½|p33+p13+p23*2^½|p32+p12+p22*2^½
+		addps xmm7, xmm1		; xmm7 = p33+p13 | p32+p12 | p31+p11 | p30+p10
+		addps xmm7, xmm2		; xmm7 = p33+p13+p23*2^½|p32+p12+p22*2^½|p31+p11+p21*2^½|p30+p10+p20*2^½
+		pshufd xmm0, xmm7, 11111110b	; xmm0 = p33+p13+p23*2^½|p33+p13+p23*2^½|p33+p13+p23*2^½|p32+p12+p22*2^½
 
-		subps xmm0, xmm6		; xmm0 =  - | - | Frey-ChenX(p22) | Frey-ChenX(p21)
+		subps xmm0, xmm7		; xmm0 =  - | - | Frey-ChenX(p22) | Frey-ChenX(p21)
 
 		pxor mm0, mm0			; mm0 = 0
 		cvtps2pi mm0, xmm0		; mm0 = Frey-ChenX(p22) | Frey-ChenX(p21)  (32 bits int c/u)
@@ -116,33 +114,32 @@ asmFreiChen:
 
 		; aplico la máscara de Frei-Chen en Y para a los píxeles p22 y p21
 
-		mulps xmm4, xmm1		; xmm4 =  p13*2^½ | p12*2^½ | p11*2^½ | p10*2^½		
-		pshufd xmm4, xmm4, 11111001b	; xmm4 =  p13*2^½ | p13*2^½ | p13*2^½ | p12*2^½ 
+		mulps xmm5, xmm1		; xmm5 =  p13*2^½ | p12*2^½ | p11*2^½ | p10*2^½		
+		pshufd xmm5, xmm5, 11111001b	; xmm5 =  p13*2^½ | p13*2^½ | p13*2^½ | p12*2^½ 
 		
-		mulps xmm5, xmm3		; xmm5 =  p33*2^½ | p32*2^½ | p31*2^½ | p30*2^½		
-		pshufd xmm5, xmm5, 11111001b	; xmm5 =  p33*2^ ½ | p33*2^½ | p33*2^½ | p32*2^½ 
+		mulps xmm6, xmm3		; xmm6 =  p33*2^½ | p32*2^½ | p31*2^½ | p30*2^½		
+		pshufd xmm6, xmm6, 11111001b	; xmm6 =  p33*2^ ½ | p33*2^½ | p33*2^½ | p32*2^½ 
 		
 		subps xmm1, xmm3		; xmm1 =  p33-p13| p32-p12| p31-p11| p30-p10
 		pshufd xmm3, xmm1, 11111110b	; xmm3 =  p33-p13| p33-p13| p33-p13| p32-p12
 
 		addps xmm1, xmm3		; xmm1 =  - | - | p31-p11+p33-p13| p30-p10+p32-p12
-		addps xmm1, xmm5		; xmm1 =  - | - | p31-p11+p33-p13+p33*2^½ | p30-p10+p32-p12+p32*2^½
-		subps xmm1, xmm4		; xmm1 =  - | - | Frey-ChenY(p22) | Frey-ChenY(p21)
+		addps xmm1, xmm6		; xmm1 =  - | - | p31-p11+p33-p13+p33*2^½ | p30-p10+p32-p12+p32*2^½
+		subps xmm1, xmm5		; xmm1 =  - | - | Frey-ChenY(p22) | Frey-ChenY(p21)
 		
 		pxor mm1, mm1			; mm1 = 0
 		cvtps2pi mm1, xmm1		; mm1 = Frey-ChenY(p22) | Frey-ChenY(p21)  (32 bits int c/u)
-		
+
 
 		; saturo los posibles valores negativos de los píxeles a 0
 		
 		pxor mm2, mm2			; mm2 = 0
 		pcmpgtd mm2, mm0
 		pand mm0, mm2
-		
+
 		pxor mm2, mm2			; mm2 = 0
 		pcmpgtd mm2, mm1
 		pand mm1, mm2
-		
 
 		; empaqueto los pixeles procesado en X e Y en los registros XMM0 y XMM1 a words  primero, luego a bytes 
 		; y finalmente realizo la suma empaquetada y con saturación de ambos
@@ -154,7 +151,6 @@ asmFreiChen:
 		packsswb mm1, mm1		; mm1 = - | - | - | - | Frey-ChenY(p22) | Frey-ChenY(p21)(8bits int c/u)
 
 		paddsb mm0, mm1			; mm0 = - | - | - | - | Frey-ChenXY(p22) | Frey-ChenXY(p21)
-		
 		
 		; guardo los píxeles procesados en la matriz destino y avanzo los punteros para continuar el procesando
 		
