@@ -41,8 +41,8 @@ asmFreiChen:
 	
 	; cargo en ECX la cantidad de procesamientos de píxeles que tengo que hacer por fila
 
-	mov ecx, WIDTH_STEP			; ecx = WIDTH_STEP 	-- no proceso los bytes de relleno
-	sub ecx, 2				; ecx = WIDTH_STEP-2 	-- hay 2 columnas que no proceso
+	mov ecx, WIDTH				; ecx = WIDTH	 	-- no proceso los bytes de relleno
+	sub ecx, 2				; ecx = WIDTH-2 	-- hay 2 columnas que no proceso
 	shr ecx, 1				; ecx = (WIDTH-2)/2 	-- voy a procesar 2 píxeles por vez
 		
 
@@ -163,7 +163,7 @@ asmFreiChen:
 		;finalmente realizo la suma empaquetada y con saturación de ambos para obtener los valores de los
 		; píxeles en la derivada XY
 		
-		paddsb mm0, mm1			; mm0 = - | - | - | - | Frey-ChenXY(p22) | Frey-ChenXY(p21)
+		paddusb mm0, mm1		; mm0 = - | - | - | - | Frey-ChenXY(p22) | Frey-ChenXY(p21)
 		
 
 		; guardo los píxeles procesados en la matriz destino y avanzo los punteros para continuar el procesando
@@ -178,7 +178,7 @@ asmFreiChen:
 		jne .recorrerFila		; repito el ciclo hasta haber procesado la cantidad predeterminada
 
 
-	lea eax, [2*eax+4]			; eax = WIDTH_STEP
+	lea eax, [2*eax+4]			; eax = WIDTH
 
 	sub esi, eax				; esi = puntero al inicio de la fila actual de la matriz fuente
 	lea esi, [esi+edx]			; esi = puntero a la siguiente fila a recorrer en la matriz fuente
