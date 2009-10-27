@@ -12,7 +12,6 @@ section .data
 	%define WIDTH						[ebp+16]
 	%define HEIGHT						[ebp+20]
 	%define WIDTH_STEP					[ebp+24]
-	%define var_local_1					[ebp-4]
 
 	
 section .text
@@ -21,39 +20,38 @@ asmFreiChen:
 
 	; preservo los registros de la Convención C y creo el stack frame
 
-	convC_push 4
-
-
-	; cargo en los registros de propósito general las dimensiones de la matriz
-
-	mov eax, HEIGHT				; eax = HEIGHT
-	sub eax, 2				; eax = HEIGHT-2
-	mov ecx, WIDTH				; ecx = WIDTH
-	mul ecx					; eax = (HEIGHT-2) * WIDTH
-	mov ecx, eax				; ecx = (HEIGHT-2) * WIDTH
-	shr ecx, 1				; ecx = (HEIGHT-2) * WIDTH/2 -- voy a procesar 2 píxeles por vez
-	mov eax, WIDTH				; eax = WIDTH
-	
-	
-	; cargo en los registros ESI y EDI las direcciones de memoria de las matrices
-
-	mov esi, DIR_SRC			; esi = puntero a la matriz fuente
-	mov edi, DIR_DST			; edi = puntero a la matriz destino
-	
-
-	; cargo la variable local con el valor entero 2
-	
-	mov dword var_local_1, 2	; var_local_1 = 2
+	convC_push
 
 
 	; cargo XMM4 4 veces con el entero 2, convierto cada paquete en un flotante y le calculo la raiz cuadrada
 
-	movss xmm4, var_local_1		; xmm4 = - | - | - | 2		(32 bits inc c/u)
+	mov dword eax, 2		; eax = 2 
+	movd xmm4, eax			; xmm4 = - | - | - | 2		(32 bits inc c/u)
 	pshufd xmm4, xmm4, 00000000b	; xmm4 = 2 | 2 | 2 | 2		(32 bits inc c/u)
 	cvtdq2ps xmm4, xmm4		; xmm4 = 2 | 2 | 2 | 2		(32 bits float c/u)
 	sqrtps xmm4, xmm4		; xmm4 = 2^½ | 2^½ | 2^½ | 2^½	(32 bits float c/u)
 	
 	
+	; cargo en los registros de propósito general las dimensiones de la matriz
+
+	mov ebx, HEIGHT				; ebx = HEIGHT
+	sub ebx, 2				; ebx = HEIGHT-2 	-- hay 2 filas que no proceso
+	mov edx, WIDTH				; edx = WIDTH
+	
+	
+	; cargo en ECX la cantidad de procesamientos de píxeles que tengo que hacer por fila
+
+	mov ecx, WIDTH_STEP			; ecx = WIDTH_STEP 	-- no proceso los bytes de relleno
+	sub ecx, 2				; ecx = WIDTH_STEP-2 	-- hay 2 columnas que no proceso
+	shr ecx, 1				; ecx = (WIDTH-2)/2 	-- voy a procesar 2 píxeles por vez
+		
+
+	; cargo en los registros ESI y EDI las direcciones de memoria de las matrices
+	
+	mov esi, DIR_SRC			; esi = puntero a la matriz fuente
+	mov edi, DIR_DST			; edi = puntero a la matriz destino
+	
+
 	; a continuación, en el ciclo que sigue recorro la matriz aplicando la máscara de a 2 píxeles por vez
 	
 ;---------------------------------------------------------------------------------------------------------------------
@@ -64,16 +62,20 @@ asmFreiChen:
 ; ACLARACIÓN 2: Los pixeles de la matriz se indexan como pij, donde i = fila (1 a HEIGHT-2) y j = columna (0 a WHIDTH)
 ; --------------------------------------------------------------------------------------------------------------------
 
-	.ciclo: 
+	.recorrerMatriz: 
 
+	xor eax, eax				; eax = 0
+
+		.recorrerFila:
+	
 		; cargo en los registros XMM1, XMM2 y XMM3 4 píxeles de 3 filas contínuas de la matriz fuente
 		; y cargo los registros XMM5 y XMM6 con el contenido de XMM4
 		
 		pxor xmm0, xmm0			; xmm0 = 0 
 		
 		movd xmm1, [esi]		; xmm1 =  0|0|0|0|0|0|0|0|0|0|0|0|p13|p12|p11|p10  (p* = 8 bits int)
-		movd xmm2, [esi+eax]		; xmm2 =  0|0|0|0|0|0|0|0|0|0|0|0|p23|p22|p21|p20  (p* = 8 bits int)
-		movd xmm3, [esi+eax*2]		; xmm3 =  0|0|0|0|0|0|0|0|0|0|0|0|p33|p32|p31|p30  (p* = 8 bits int)
+		movd xmm2, [esi+edx]		; xmm2 =  0|0|0|0|0|0|0|0|0|0|0|0|p23|p22|p21|p20  (p* = 8 bits int)
+		movd xmm3, [esi+edx*2]		; xmm3 =  0|0|0|0|0|0|0|0|0|0|0|0|p33|p32|p31|p30  (p* = 8 bits int)
 
 		movdqu xmm5, xmm4		; xmm5 = 2^½ | 2^½ | 2^½ | 2^½			   (32 bits float c/u)
 		movdqu xmm6, xmm4		; xmm6 = 2^½ | 2^½ | 2^½ | 2^½			   (32 bits float c/u)
@@ -166,18 +168,29 @@ asmFreiChen:
 
 		; guardo los píxeles procesados en la matriz destino y avanzo los punteros para continuar el procesando
 		
-		movd [edi+eax+1], mm0		; guardo los 2 píxeles procesados en la matriz destino
+		movd [edi+edx+1], mm0		; guardo los 2 píxeles procesados en la matriz destino
 
 		lea esi, [esi+2]		; avanzo el puntero en la matriz fuente 2 píxeles a la derecha
 		lea edi, [edi+2]		; avanzo el puntero en la matriz destino 2 píxeles a la derecha		
 		
-		dec ecx				; decremento en 1 el contador de píxeles procesados
-		jnz .ciclo			; repito el ciclo hasta haber procesado todos los píxeles de la imagen
- 
+		inc eax				; incremento el contador de procesamientos realizados
+		cmp eax, ecx			; comparo con la cantidad de procesamientos a realizar por fila
+		jne .recorrerFila		; repito el ciclo hasta haber procesado la cantidad predeterminada
+
+	lea eax, [2*eax+4]			; eax = WIDTH_STEP
+
+	sub esi, eax				; esi = puntero al inicio de la fila actual de la matriz fuente
+	lea esi, [esi+edx]			; esi = puntero a la siguiente fila a recorrer en la matriz fuente
+	sub edi, eax				; edi = puntero al inicio de la fila actual de la matriz destino
+	lea edi, [edi+edx]			; edi = puntero a la siguiente fila a recorrer en la matriz destino
+
+	dec ebx					; decremento el contador de filas por recorrer
+	jnz .recorrerMatriz			; repito el ciclo hasta haber recorrido todas las filas de la matriz
+
 
 	; restauro los registros de la Convención C y destruyo el stack frame
 	
-	convC_pop 4			
+	convC_pop			
 	
 	
 	; regreso de la llamada a la función
