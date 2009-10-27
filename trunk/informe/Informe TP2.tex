@@ -9,10 +9,10 @@
 \begin{document}
 
 
-%\begin{figure}[t] %[h] para here [b] para bottom [t] para top
-%\centering
-%\includegraphics[width=80pt]{./logo.jpg}
-%\end{figure}
+\begin{figure}[t] %[h] para here [b] para bottom [t] para top
+\centering
+\includegraphics[width=80pt]{./logo.jpg}
+\end{figure}
 
 
 \begin{center}
@@ -26,7 +26,7 @@ ORGANIZACI\'ON DEL COMPUTADOR II\\
 Segundo Cuatrimestre de 2009}
 
 \vskip 50pt
-\textbf{\Large{Procesamiento de Im\'agenes para la Detecci\'on de Bordes}}
+\textbf{\Large{Procesamiento de Im\'agenes para la Detecci\'on de Bordes utilizando instrucciones multimedia del procesador}}
 
 \end{center}
 
@@ -47,23 +47,22 @@ Grupo : PUNPCKHQDQ
 
 \end{center}
 
-\vskip 60pt
+\vskip 15pt
 
-{\small
-\flushleft{\textbf{Resumen}}\\
-La detecci\'on de bordes es una herramienta sumamente utilizada en el procesamiento de im\'agenes, la cual permite dar mayor importancia a ciertos datos como son las l\'neas, los contornos y trazos de las mismas en detrimento de otros detalles como pueden ser matices sutiles y l\'ineas muy finas. La idea del presente trabajo es lograr implementar algoritmos de detecci\'on de bordes de im\'agenes vali\'endose para ello de los operadores m\'as comunes para tal fin. Estos son los operadores de Sobel, Prewitt y Roberts.\\
-Como paso ulterior se buscar\'a comparar los resultados obtenidos con funciones an\'alogas implementadas en la librer\'ia estandar de c\'odigo abierto OpenCV. Los aspectos a comparar ser\'an tanto la calidad de resultados como el tiempo de
-procesamiento medido en ciclos de reloj.\\
+{\small\textbf{\flushleft{Resumen}}\\
+En el trab\'ajo pr\'actico anterior se vio la importancia de la detecci\'on de bordes como herramienta utilizada en el procesamiento de imágenes, y se desarrollaron algoritmos capaces de aplicar los filtros m\'as comunes en esta \'area (Sobel, Roberts y Prewitt)
+La idea del presente trabajo es lograr implementar los algoritmos de detecci\'on de bordes de im\'agenes implementados en el citado trabajo e incorporar uno nuevo que haga uso del operador de Frei Chen, vali\'endonos en esta oportunidad  para ello de los sets de instrucciones multimedia (SIMD y SSE) del procesador. 
+Como paso ulterior se buscar\'a comparar los resultados obtenidos con los tiempos medidos para los algortimos previos as\'i como tambi\'en con las funciones an\'alogas implementadas en la librer\'ia estandar de c\'odigo abierto OpenCV. Los aspectos a comparar ser\'an tanto la calidad de resultados como el tiempo de
+procesamiento medido en ciclos de reloj.}\\
 
-\vspace{22 pt}
+\vspace{5 pt}
 
-\flushleft{\textbf{Palabras clave}}\\
-Deteccion de bordes, Sobel, Roberts, Prewitt, convoluci\'on, imagenes, Lena , OpenCV.
+{\small\textbf{\flushleft{Palabras Clave}}\\
+Deteccion de bordes, Sobel, Roberts, Prewitt, Frei Chen, convoluci\'on, imagenes, Lena, OpenCV.
 }
 
 
 \newpage
-
 
 
 \section{Introducci\'on}
@@ -113,15 +112,17 @@ No obstante, para reducir la complejidad computacional, en este trabajo se opt\'
 
 
 En consecuencia, para calcular el gradiente de una imagen, se debe realizar previamente el c\'alculo de las derivadas parciales en cada pixel.
-La forma optada en este trabajo pr\'actico para calcular dichas derivadas es mediante la aplicaci\'on de operadores dobles o de dos etapas. Los operadores utilizados, fueron los operadores de Sobel, Prewitt y Roberts. Estos operadores se caracterizan por realizar la detecci\'on de bordes en dos pasos. En el primero se buscan los bordes horizontales utilizando la m\'ascara que corresponde a la derivada parcial en X a cada pixel de la imagen. Seguidamente, y de forma an\'aloga, se buscan los bordes verticales utilizando la m\'ascara que corresponde a la derivada parcial en Y. Finalmente, para obtener todos los bordes de la imagen se suman los bordes horizontales y verticales obtenidos en el paso previo.
+La forma optada en este trabajo pr\'actico para calcular dichas derivadas es mediante la aplicaci\'on de operadores dobles o de dos etapas. Los operadores utilizados, fueron los operadores de Sobel, Prewitt, Roberts y Frei Chen. Estos operadores se caracterizan por realizar la detecci\'on de bordes en dos pasos. En el primero se buscan los bordes horizontales utilizando la m\'ascara que corresponde a la derivada parcial en X a cada pixel de la imagen. Seguidamente, y de forma an\'aloga, se buscan los bordes verticales utilizando la m\'ascara que corresponde a la derivada parcial en Y. Finalmente, para obtener todos los bordes de la imagen se suman los bordes horizontales y verticales obtenidos en el paso previo.
 
 
 \paragraph{}
 El objetivo de este trabajo pr\'actico es implementar un programa capaz de detectar los bordes de una imagen mediante el uso de los m\'etodos anteriormente descriptos. Se pretende que la interfaz del mismo se desarrolle en lenguaje C y que las funciones de detecci\'on de bordes se encuentren desarrolladas en lenguaje assembler.
-Para la implementacion de la interfaz, se cuenta con las funciones incluidas en la librer\'ia de codigo abierto OpenCV. Esta librer\'ia provee, entre otras cosas, funciones que simplifican la carga, copia y salvado de im\'agenes, asi como tambi\'en otras funcionalidades necesarias para la realizaci\'on de este trabajo. En particular, provee tambien la funci\'on cvSobel, la cual realiza la detecci\'on de bordes de una imagen usando el operador de Sobel.
-Una vez desarrollado el programa, se pretende poder comparar los m\'etodos implementados en este trabajo, con los m\'etodos provenientes de la librer\'ia de codigo abierto OpenCV. Para dicha comparaci\'on, en el caso del operador de Sobel, se har\'a uso de la funcion cvSobel anteriormente mencionada. Adem\'as, nos interesa cuantificar, la diferencia de velocidad entre las implementaciones de la librer\'ia y las del presente trabajo en funci\'on de la cantidad de ciclos de reloj necesarios para procesar una imagen.
+Para la implementacion de la interfaz, se cuenta con las funciones incluidas en la librer\'ia de codigo abierto OpenCV. Esta librer\'ia provee, entre otras cosas, funciones que simplifican la carga, copia y salvado de im\'agenes, asi como tambi\'en otras funcionalidades necesarias para la realizaci\'on de este trabajo. En particular, provee tambien la funci\'on cvSobel, la cual realiza la detecci\'on de bordes de una imagen usando el operador de Sobel.\\
 
-En lo que respecta al trabajo final, el programa desarrollado es capaz de aplicar el m\'etodo de detecci\'on de bordes usando todos los operadores mencionados, dando la posibilidad de hallar bordes de toda una imagen en sus dos direcciones; mientras que en caso particular del operador de Sobel, tambi\'en brinda la opci\'on de calcular los bordes horizontales y verticales, no as\'i para los operadores de Prewitt y Roberts.
+Una vez desarrollado el programa, se pretende poder comparar los m\'etodos implementados en este trabajo, con los m\'etodos provenientes de la librer\'ia de codigo abierto OpenCV. Para dicha comparaci\'on, en el caso del operador de Sobel, se har\'a uso de la funcion cvSobel anteriormente mencionada. Del mismo modo, ser\'a de interes establecer la comparaci\'on entre los algoritmos implementados en el presente trabajo y los implementados en el trabajo pr\'actico anterior.\\
+Dichas comparaciones se centrar\'an comparar (a simple vista) los resultados arrojados por los algoritmos y en cuantificar la diferencia de velocidad entre las distintas implementaciones en funci\'on de la cantidad de ciclos de reloj necesarios para procesar una imagen.\\
+
+En lo que respecta al trabajo final, el programa desarrollado es capaz de aplicar el m\'etodo de detecci\'on de bordes usando todos los operadores mencionados, dando la posibilidad de hallar bordes de toda una imagen en sus dos direcciones; mientras que en caso particular del operador de Sobel, tambi\'en brinda la opci\'on de calcular los bordes horizontales y verticales, no as\'i para los operadores de Prewitt, Roberts y Frei Chen.
 
 \newpage
 
@@ -129,14 +130,16 @@ En lo que respecta al trabajo final, el programa desarrollado es capaz de aplica
 
 \subsection{Primera aproximaci\'on}
 \paragraph{}
-Para comenzar a realizar este trabajo pr\'actico lo primero que se hizo, a modo de prueba y al igual que en el trabajo anterior, fue realizar simplemente un recorrido de la imagen copiando pixel por pixel, obteniendo as\'i una copia fiel de la imagen fuente en la imagen destino. De esta modo, se aseguraba que la forma de recorrer la imagen fuese la correcta. Esto se realiz\'o porque no resultaba trivial recorrer una im\'agen de ancho m\'ultiplo de 16 de a menos pixeles.
+Para comenzar a realizar este trabajo pr\'actico lo primero que se hizo, a modo de prueba y al igual que en el trabajo anterior, fue realizar simplemente un recorrido de la imagen copiando pixel por pixel, obteniendo as\'i una copia fiel de la imagen fuente en la imagen destino. De esta modo, se aseguraba que la forma de recorrer la imagen fuese la correcta, al tiempo que nos permiti\'o familirizarnos con el las instrucciones SIMD y SSE necesarias para la carga y guardado de dato y establecer un modo de recorrer una im\'agen de ancho m\'ultiplo de 16 de a menos pixeles.
 
 \subsection{Implementaci\'on}
 \paragraph*{}
-Ya habi\'endose realizado suficientes pruebas se procedi\'o a implemetar el algoritmo deseado. Como primer paso se implement\'o la intrfaz del mismo en lenguaje C, de modo de que al ejecutar el programa por consola, este pudiera recibir como par\'ametro la imagen a procesar, asi como tambi\'en el tipo de filtro a aplicar conforme a lo pedido en el enunciado del presente trabajo.
-Seguidamente se pas\'o a analizar la forma en la cu\'al se implementar\'ia cada m\'etodo. Se comenz\'o por el m\'etodo de Sobel, ya que si este m\'etodo se implementaba correctamente, el resto pod\'ia resolverse de manera an\'aloga (o en su defecto de manera muy similar).
-De este modo, se busc\'o que el algoritmo de Sobel fuera recorriendo la imagen y aplicara a cada pixel la m\'ascara correspondiente, es decir la matriz de 3x3 con los valores correspondientes al operador de Sobel. A continuaci\'on se explica c\'omo se implement\'o el operador de sobel en X: una vez posicionados sobre el pixel al cual se le quer\'ia calcular la derivada, se cargaba en 3 registros xmm 3 tiras de filas adyacentes.\\
-Si recordamos, el operador de sobel para X es asi:\\
+Ya habi\'endose realizado suficientes pruebas se procedi\'o a implemetar el algoritmo deseado. Como primer paso se implement\'o la intrfaz del mismo en lenguaje C, de modo de que al ejecutar el programa por consola, este pudiera recibir como par\'ametro la imagen a procesar, asi como tambi\'en el tipo de filtro a aplicar conforme a lo pedido en el enunciado del presente trabajo.\\
+
+Seguidamente se pas\'o a analizar la forma en la cu\'al se implementar\'ia cada m\'etodo. Se comenz\'o por el m\'etodo de Sobel, ya que si este m\'etodo se implementaba correctamente, el resto pod\'ia resolverse de manera an\'aloga, o en su defecto, de manera muy similar.
+De este modo, se busc\'o que el algoritmo de Sobel fuera recorriendo la imagen y aplicara a cada pixel la m\'ascara correspondiente, es decir la matriz de 3x3 con los valores correspondientes al operador de Sobel.\\
+A continuaci\'on se explica c\'omo se implement\'o el operador de sobel en X. Recordemos, el operador de Sobel para calcular la derivada de un p\'ixel en la derivada  X:\\
+
 \begin{table}[h]
 \centering
 \begin{tabular}{|c|c|c|}
@@ -148,7 +151,7 @@ Si recordamos, el operador de sobel para X es asi:\\
 \end{table}\\
 
 \paragraph{}
-Supongamos que las tiras de pixeles antes mencionadas, se cargaban de la siguiente manera:\\
+Una vez posicionados sobre el pixel al cual se le quer\'ia calcular la derivada, se carga en tres registros XMM tres tiras de filas adyacentes de la siguiente manera:\\
 
 \begin{center}
 XMM0 = $\begin{array}{|c|c|c|c|c|c|c|}
@@ -175,10 +178,10 @@ S_{2,15} & S_{2,14} & S_{2,13} & \ldots & S_{2,2} & S_{2,1} & S_{2,0}\\
 \end{array} $
 \end{center}
 
-donde los valores que se encuentran m\'as hacia la izquierda corresponden a los bytes m\'as significativos de los registros, y los de m\'as hacia la derecha a los menos significativos.
+donde los valores que se encuentran m\'as hacia la izquierda corresponden a los bytes m\'as significativos dentro de la matriz, y los de m\'as hacia la derecha a los menos significativos.
 
 \paragraph{}
-En el siguiente paso, se proced\'ia a sumar dichos registros, de la siguiente manera: se sumaba una vez el registro XMM0, una vez el XMM2 y finalmente dos veces el registro XMM1. Quedando dicho resultado almacenado en XMM0 de la siguiente manera:
+En el siguiente paso, se procede a sumar dichos registros, sumando a los paquetes XMM0 los paquetes XMM2 y dos veces los paquetes de XMM1, quedando dicho resultado almacenado en XMM0 de la siguiente manera:
 
 \begin{center}
 XMM0 = $\begin{array}{|c|c|c|c|c|}
@@ -188,7 +191,7 @@ S_{0,15} + 2*S_{1,15} + S_{2,15} & \ldots & S_{0,2} + 2*S_{1,2} + S_{2,2} & S_{0
 \end{array} $
 \end{center}
 
-Luego, se procedia a copiar este registro en alguno de los otros disponibles, y se lo shifteaba a derecha 2 bytes. Quedando asi:
+Luego, se procede a copiar este registro en alguno de los otros disponibles haciendo un shuffle, de modo que todos los paquetes se corran 2 paquetes a la derecha perdi\'endose as\'i los paquetes menos significativos. Con lo cual, se obtiene:
 
 \begin{center}
 XMM1 = $\begin{array}{|c|c|c|c|c|}
@@ -199,7 +202,7 @@ XMM1 = $\begin{array}{|c|c|c|c|c|}
 \end{center}
 
 \paragraph{}
-Finalmente, se hac\'ia la resta entre XMM1 y XMM0, quedando en los 14 bytes menos significativos de XMM1 el resultado a guardar en la imagen destino.\\
+Finalmente, se hace la resta entre XMM1 y XMM0, quedando en los 14 bytes menos significativos de XMM1 el resultado a guardar en la imagen destino.\\
 En principio esto se supuso que pasaba, pero en realidad no se obtuvieron los resultados buscados. Esto se debi\'o a que cuando se hac\'ia la suma de los registros XMM0, XMM2 y 2 veces XMM1, las instrucciones usadas saturaban cada una de las sumas, pero lo que se necesitaba era que reci\'en se saturaran los valores de cada pixel una vez hecha la resta antes mencionada.
 
 \paragraph{}
@@ -250,7 +253,7 @@ La implementaci\'on de los dem\'as m\'etodos fue an\'aloga a la realizada anteri
 \subsection{Mediciones de tiempos de ejecuci\'on}
 \paragraph{}
 A continaci\'on se presentan los resultados de las mediciones de ciclos de reloj de la ejecuci\'on de cada uno de los algoritmos. Asimismo se presenta una tabla comparativa de las mediciones de ciclos de reloj de cvSobel y la funci\'on an\'aloga realizada en este trabajo.\\
-Por otra parte, las im\'agenes resultantes del procesamiento de bordes, que bien podr\'ian ir en esta secci\'on del informe, se encuentran al final del mismo presentadas como anexos para favorecer su visualizaci\'n.
+Por otra parte, las im\'agenes resultantes del procesamiento de bordes, que bien podr\'ian ir en esta secci\'on del informe, se encuentran al final del mismo presentadas como anexos para favorecer su visualizaci\'on.
 
 \paragraph{}
 El criterio para obtener los resultados de esta secci\'on fue realizar unas 1000 iteraci\'ones, y quedarnos con el menor tiempo arrojado por cada una de las funciones, tanto para las realizadas en este trabajo, como para las incluidas en la librer\'ia OpenCv.
@@ -305,8 +308,8 @@ Como podemos observar en los datos obtenidos en la secci\'on de resultados, hay 
 No obstante, la utilizaci\'on de instrucciones SSE para la mejora de ciertos puntos de un algoritmo puede ser una desventaja. Esto se debe a que no todos los procesadores tienen el mismo set de instrucciones, por lo cu\'al un algoritmo que funcione de manera excelente en una computadora, puede no comportarse como se espera en otra o directamente no funcionar.
 
 
+\newpage
 \section{Conclusi\'ones}
-
 \paragraph{}
 Si observamos m\'as detalladamente los datos obtenidos, podremos ver grandes diferencias entre los tiempos de ejecuci\'on de la implementaci\'on anterior (TP1) y la nueva (TP2). Esto se debe a que, gracias al haber utilizado instrucciones SSE, en cada ciclo se pudieron procesar de a varios pixeles a la vez, en contraposici\'on con el trabajo pr\'actico anterior, en el cual s\'olo se pod\'ia procesar de a un pixel por vez.
 
@@ -525,11 +528,5 @@ Como conclusi\'on final, podemos decir que conociendo mejor las virtudes de un p
    \end{algorithm}
 
 
-
-
-
 \end{document} 
-
-
-
 		
